@@ -8,9 +8,11 @@ checked.
 
     python litsearch.py "convective outflow detection mesonet"
     python litsearch.py "urban heat accessibility" --source openalex --rows 20
+    python litsearch.py "wastewater resistome" --venue "Water Research" --rows 50
     python litsearch.py --doi 10.1175/BAMS-D-16-0067.1            # what it is
     python litsearch.py --cites 10.1175/BAMS-D-16-0067.1          # who cites it
     python litsearch.py --refs 10.1175/BAMS-D-16-0067.1           # what it cites
+    python litsearch.py --bibtex 10.1175/BAMS-D-16-0067.1 ...     # ready to paste
 
 No credentials are needed. Give --mailto your address to enter the polite pools
 and be served faster. Every row carries the source that returned it, so a claim
@@ -31,7 +33,7 @@ SOURCES = ("crossref", "openalex", "europepmc", "arxiv")
 def _get(url, accept="application/json"):
     result = subprocess.run(
         ["curl", "-sL", "--max-time", "30", "-H", f"Accept: {accept}", url],
-        capture_output=True, text=True,
+        capture_output=True, encoding="utf-8", errors="replace",
     )
     return result.stdout
 
@@ -147,8 +149,10 @@ def cites(doi, rows, mailto):
     for item in (data or {}).get("results", []):
         authors = ", ".join(a.get("author", {}).get("display_name", "").split()[-1]
                             for a in item.get("authorships", [])[:3])
+        source = ((item.get("primary_location") or {}).get("source") or {})
         out.append(_record("cites", item.get("title"), item.get("publication_year"),
-                           authors, item.get("doi"), "", item.get("cited_by_count")))
+                           authors, item.get("doi"), source.get("display_name"),
+                           item.get("cited_by_count")))
     return out
 
 
@@ -162,9 +166,62 @@ def refs(doi, rows, mailto):
             continue
         authors = ", ".join(a.get("author", {}).get("display_name", "").split()[-1]
                             for a in item.get("authorships", [])[:3])
+        source = ((item.get("primary_location") or {}).get("source") or {})
         out.append(_record("refs", item.get("title"), item.get("publication_year"),
-                           authors, item.get("doi"), "", item.get("cited_by_count")))
+                           authors, item.get("doi"), source.get("display_name"),
+                           item.get("cited_by_count")))
     return out
+
+
+def _protect_caps(title):
+    """Brace the capitals BibTeX would otherwise flatten.
+
+    A registrar returns the title as plain text, and a style that lowercases
+    titles then turns "SARS-CoV-2 RNA" into "Sars-cov-2 rna" in the printed
+    reference list. It is silent, it survives every compile, and it is exactly
+    what a screening editor sees. Braces stop it.
+    """
+    words = title.split()
+    out = []
+    for index, word in enumerate(words):
+        core = re.sub(r"[^A-Za-z0-9-]", "", word)
+        interior = core[1:] if index == 0 else core
+        if "{" not in word and any(c.isupper() for c in interior):
+            head = re.match(r"^\W*", word).group(0)
+            tail = re.search(r"\W*$", word).group(0)
+            body = word[len(head):len(word) - len(tail) or None]
+            word = f"{head}{{{body}}}{tail}"
+        out.append(word)
+    return " ".join(out)
+
+
+def bibtex(dois, mailto=None):
+    """The registrar's own BibTeX for each DOI.
+
+    Typing an entry from a search result is where fabrication enters: the year
+    drifts, the volume is guessed, the title loses a word. Ask the registry for
+    the record instead. doi.org content negotiation answers for Crossref and
+    DataCite alike, so a Zenodo deposit produces an entry too.
+    """
+    for doi in dois:
+        doi = doi.strip().replace("https://doi.org/", "")
+        headers = ["-H", "Accept: application/x-bibtex"]
+        if mailto:
+            headers += ["-H", f"User-Agent: litsearch (mailto:{mailto})"]
+        result = subprocess.run(
+            ["curl", "-sL", "--max-time", "25", *headers,
+             "https://doi.org/" + quote(doi, safe="/")],
+            capture_output=True, encoding="utf-8", errors="replace",
+        )
+        entry = result.stdout.strip()
+        if not entry.startswith("@"):
+            print(f"% UNRESOLVED {doi} -- do not cite it")
+            continue
+        entry = re.sub(r"(?i)(title=\{)(.*?)(\},)",
+                       lambda m: m.group(1) + _protect_caps(m.group(2)) + m.group(3),
+                       entry, count=1)
+        print(entry)
+        print()
 
 
 def dedupe(records):
@@ -185,7 +242,14 @@ def dedupe(records):
     return list(merged.values())
 
 
-def show(records):
+if hasattr(sys.stdout, "reconfigure"):    # titles carry Greek and dashes
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
+def show(records, venue=None):
+    if venue:
+        needle = venue.lower()
+        records = [r for r in records if needle in (r["venue"] or "").lower()]
     if not records:
         print("  nothing found")
         return
@@ -203,8 +267,8 @@ def main(argv):
     if not argv:
         print(__doc__)
         return 2
-    rows, mailto, source = 10, None, None
-    for flag in ("--rows", "--mailto", "--source"):
+    rows, mailto, source, venue = 10, None, None, None
+    for flag in ("--rows", "--mailto", "--source", "--venue"):
         if flag in argv:
             index = argv.index(flag)
             value = argv[index + 1]
@@ -213,15 +277,22 @@ def main(argv):
                 rows = int(value)
             elif flag == "--mailto":
                 mailto = value
+            elif flag == "--venue":
+                venue = value
             else:
                 source = value
+
+    if "--bibtex" in argv:
+        index = argv.index("--bibtex")
+        bibtex(argv[index + 1:], mailto)
+        return 0
 
     for flag, function in (("--doi", by_doi), ("--cites", cites), ("--refs", refs)):
         if flag in argv:
             doi = argv[argv.index(flag) + 1]
             print(f"{flag} {doi}")
             show(function(doi, mailto) if flag == "--doi"
-                 else function(doi, rows, mailto))
+                 else function(doi, rows, mailto), venue)
             return 0
 
     query = " ".join(argv)
@@ -232,7 +303,7 @@ def main(argv):
             records += globals()[name](query, rows, mailto)
         except Exception as error:                      # one API down is not fatal
             print(f"  NOTE  {name} did not answer ({type(error).__name__})")
-    show(dedupe(records))
+    show(dedupe(records), venue)
     return 0
 
 

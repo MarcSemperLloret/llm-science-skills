@@ -147,6 +147,22 @@ def check_novelty(tex):
     return findings
 
 
+def split_entries(text):
+    """Whole entries, counting braces.
+
+    The obvious pattern ends an entry at a closing brace in the first column,
+    which is a house style, not the format. A registrar returns the entry on one
+    line, and that pattern then matches nothing and reports no entries at all --
+    a silent, plausible, wrong answer rather than an error.
+    """
+    for match in re.finditer(r"@(\w+)\s*\{\s*([^,\s]+)\s*,", text):
+        depth, index = 1, match.end()
+        while index < len(text) and depth:
+            depth += (text[index] == "{") - (text[index] == "}")
+            index += 1
+        yield match.group(1).lower(), match.group(2).strip(), text[match.end():index - 1]
+
+
 def check_bibliography(bib_path, tex, min_refs=30, journal=None):
     """The three things an editor checks about the references in a minute.
 
@@ -158,7 +174,7 @@ def check_bibliography(bib_path, tex, min_refs=30, journal=None):
 
     findings = []
     text = Path(bib_path).read_text(encoding="utf-8", errors="replace")
-    entries = re.findall(r"@(\w+)\s*\{\s*([^,]+),(.*?)\n\}", text, re.S)
+    entries = list(split_entries(text))
 
     cited = set()
     for group in re.findall(r"\\[a-zA-Z]*cite[a-zA-Z]*\*?(?:\[[^\]]*\])*\{([^}]+)\}", tex):

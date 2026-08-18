@@ -79,14 +79,27 @@ def _fields(body):
         fields[name] = " ".join(value.split())
 
 
+def split_entries(text):
+    """Whole entries, counting braces.
+
+    The obvious pattern ends an entry at a closing brace in the first column,
+    which is a house style, not the format. A registrar returns the entry on one
+    line, and that pattern then matches nothing and reports no entries at all --
+    a silent, plausible, wrong answer rather than an error.
+    """
+    for match in re.finditer(r"@(\w+)\s*\{\s*([^,\s]+)\s*,", text):
+        depth, index = 1, match.end()
+        while index < len(text) and depth:
+            depth += (text[index] == "{") - (text[index] == "}")
+            index += 1
+        yield match.group(1).lower(), match.group(2).strip(), text[match.end():index - 1]
+
+
 def parse_bib(path):
     """Entries as dicts. Deliberately tolerant: this is a lint, not a parser."""
     text = Path(path).read_text(encoding="utf-8", errors="replace")
-    entries = []
-    for match in re.finditer(r"@(\w+)\s*\{\s*([^,]+),(.*?)\n\}", text, re.S):
-        kind, key, body = match.group(1).lower(), match.group(2).strip(), match.group(3)
-        entries.append({"kind": kind, "key": key, **_fields(body)})
-    return entries
+    return [{"kind": kind, "key": key, **_fields(body)}
+            for kind, key, body in split_entries(text)]
 
 
 def _words(title):
@@ -238,7 +251,7 @@ def verify_dois(entries, limit=None, mailto=None, pause=0.15):
             headers += ["-H", f"User-Agent: litcheck (mailto:{mailto})"]
         result = subprocess.run(
             ["curl", "-sL", "--max-time", "25", *headers, url],
-            capture_output=True, text=True,
+            capture_output=True, encoding="utf-8", errors="replace",
         )
         time.sleep(pause)
         try:
@@ -264,6 +277,10 @@ def verify_dois(entries, limit=None, mailto=None, pause=0.15):
                                  f"{entry['year']}"))
     findings.append(("INFO", "verified", f"{len(targets)} DOIs resolved via doi.org"))
     return findings
+
+
+if hasattr(sys.stdout, "reconfigure"):    # titles carry Greek and dashes
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def report(findings, header=None):
