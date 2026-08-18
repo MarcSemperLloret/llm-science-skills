@@ -1,0 +1,96 @@
+# Editorial figure style — editorial-figures skill
+# For reports, README pages, slides and outreach. NOT for journal submissions:
+# a manuscript figure carries no title and no source line, because the caption
+# does. Use scientific-figures for anything going to a journal.
+#
+# Same identity as publication.mplstyle: same palette, same neutrals, same
+# restraint. What changes is the medium — read on a screen, at arm's length,
+# without a caption underneath — so type is larger and the composition carries
+# its own title.
+
+# --- export -----------------------------------------------------------------
+savefig.dpi:        200
+savefig.bbox:       standard
+figure.dpi:         150
+pdf.fonttype:       42
+ps.fonttype:        42
+svg.fonttype:       none
+
+# --- geometry ---------------------------------------------------------------
+figure.figsize:               8.0, 4.5
+figure.constrained_layout.use: True
+figure.facecolor:  white
+axes.facecolor:    white
+
+# --- typography -------------------------------------------------------------
+font.family:      sans-serif
+font.sans-serif:  Arial, Helvetica, DejaVu Sans
+font.size:        11
+axes.labelsize:   11
+axes.titlesize:   13
+axes.titleweight: bold
+axes.titlelocation: left
+xtick.labelsize:  11
+ytick.labelsize:  11
+legend.fontsize:  11
+figure.titlesize: 16
+figure.titleweight: bold
+mathtext.fontset: dejavusans
+mathtext.default: regular
+
+# --- axes and spines --------------------------------------------------------
+# Only the baseline. On screen a full frame is noise, and the horizontal grid
+# does the work of the y axis.
+axes.linewidth:      0.9
+axes.spines.top:     False
+axes.spines.right:   False
+axes.spines.left:    False
+axes.labelpad:       6.0
+axes.axisbelow:      True
+axes.edgecolor:      "#333333"
+axes.labelcolor:     "#555555"
+text.color:          "#222222"
+
+axes.prop_cycle: cycler('color', ['0072B2', 'D55E00', '009E73', 'E69F00', 'CC79A7', '56B4E9', '949494', 'F0E442'])
+
+# --- ticks ------------------------------------------------------------------
+xtick.direction:    out
+ytick.direction:    out
+xtick.major.width:  0.9
+ytick.major.width:  0.0
+xtick.major.size:   4.0
+ytick.major.size:   0.0
+xtick.major.pad:    4.0
+ytick.major.pad:    4.0
+xtick.color:        "#333333"
+ytick.color:        "#333333"
+xtick.labelcolor:   "#555555"
+ytick.labelcolor:   "#555555"
+
+# --- data elements ----------------------------------------------------------
+lines.linewidth:       2.2
+lines.markersize:      6.0
+lines.markeredgewidth: 0.0
+lines.solid_capstyle:  round
+patch.linewidth:       0.9
+scatter.edgecolors:    none
+
+# --- grid -------------------------------------------------------------------
+# Horizontal only, and behind everything. The y ticks are gone, so this is what
+# lets a reader recover a value.
+axes.grid:       True
+axes.grid.axis:  y
+grid.color:      "#E4E4E4"
+grid.linewidth:  0.8
+grid.alpha:      1.0
+
+# --- legend -----------------------------------------------------------------
+legend.frameon:       False
+legend.handlelength:  1.4
+legend.handletextpad: 0.6
+legend.labelspacing:  0.5
+legend.columnspacing: 1.4
+
+# --- colormaps --------------------------------------------------------------
+image.cmap:        viridis
+image.interpolation: nearest

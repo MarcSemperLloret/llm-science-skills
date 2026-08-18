@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "scientific-skills",
+  "version": "0.1.0",
+  "description": "Agent Skills for producing scientific manuscripts: figure standards with an executable checker, editorial polish, the fixed front and end matter of a paper, and a research feasibility protocol.",
+  "author": {
+    "name": "Marc Semper"
+  },
+  "homepage": "https://github.com/marcsemper/scientific-skills",
+  "repository": "https://github.com/marcsemper/scientific-skills",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "science",
+    "research",
+    "scientific-writing",
+    "figures",
+    "matplotlib",
+    "latex",
+    "reproducibility"
+  ]
+}

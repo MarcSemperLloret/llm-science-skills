@@ -1,0 +1,62 @@
+%==============================================================================
+%  Front matter. Copy verbatim; only \journal, the abstract and the keywords
+%  change from one manuscript to the next.
+%
+%  microtype needs scalable fonts: without fontenc + lmodern the compilation
+%  aborts with "auto expansion is only possible with scalable fonts".
+%  placeins keeps floats in the section that cites them; without it the last
+%  figure drifts past the bibliography.
+%==============================================================================
+\documentclass[preprint,12pt,numbers,sort&compress]{elsarticle}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{lineno}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[section]{placeins}
+\usepackage{microtype}
+
+\journal{<target journal>}
+\sisetup{output-decimal-marker={.}, group-separator={\,}, detect-all}
+
+\begin{document}
+\linenumbers
+
+\begin{frontmatter}
+
+\title{<title>}
+
+\author[ua]{Marc Semper\corref{cor1}}
+\ead{marc.semper@ua.es}
+\cortext[cor1]{Corresponding author.}
+
+\author[ua]{Manuel Curado}
+\ead{manuel.curado@ua.es}
+
+\author[ua]{Jose F. Vicent}
+\ead{jvicent@ua.es}
+
+\affiliation[ua]{organization={Department of Computer Science and Artificial Intelligence, University of Alicante},
+            addressline={Carretera de San Vicente del Raspeig s/n},
+            city={San Vicente del Raspeig},
+            postcode={03690},
+            state={Alicante},
+            country={Spain}}
+
+\begin{abstract}
+<abstract>
+\end{abstract}
+
+\begin{keyword}
+<keyword> \sep <keyword> \sep <keyword>
+\end{keyword}
+
+\end{frontmatter}

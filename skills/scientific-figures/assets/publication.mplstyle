@@ -1,0 +1,100 @@
+# Publication figure style — scientific-figures skill
+# Sizes are FINAL-SIZE points: the figure must be included in the manuscript
+# at 1:1 scale, never rescaled by \includegraphics[width=...].
+
+# --- export -----------------------------------------------------------------
+savefig.dpi:        400
+savefig.bbox:       standard      # NOT tight: preserves the exact designed width
+savefig.transparent: False
+figure.dpi:         150
+pdf.fonttype:       42            # TrueType, not Type 3 (journals reject Type 3)
+ps.fonttype:        42
+svg.fonttype:       none
+
+# --- geometry ---------------------------------------------------------------
+figure.figsize:               7.0, 4.0
+figure.constrained_layout.use: True
+figure.constrained_layout.h_pad: 0.03
+figure.constrained_layout.w_pad: 0.03
+figure.constrained_layout.hspace: 0.04
+figure.constrained_layout.wspace: 0.04
+figure.facecolor:  white
+axes.facecolor:    white
+
+# --- typography -------------------------------------------------------------
+font.family:      sans-serif
+font.sans-serif:  Arial, Helvetica, DejaVu Sans
+font.size:        8
+axes.labelsize:   9
+axes.titlesize:   9
+axes.titleweight: regular
+axes.titlelocation: left
+xtick.labelsize:  8
+ytick.labelsize:  8
+legend.fontsize:  8
+figure.labelsize: 9
+figure.titlesize: 9
+mathtext.fontset: dejavusans
+mathtext.default: regular
+
+# --- axes and spines --------------------------------------------------------
+axes.linewidth:      0.7
+axes.spines.top:     False
+axes.spines.right:   False
+axes.labelpad:       3.0
+axes.axisbelow:      True
+axes.edgecolor:      "#333333"
+axes.labelcolor:     black
+text.color:          black
+axes.unicode_minus:  True
+
+# Okabe-Ito, ordered so the first two carry the principal comparison
+axes.prop_cycle: cycler('color', ['0072B2', 'D55E00', '009E73', 'E69F00', 'CC79A7', '56B4E9', '949494', 'F0E442'])
+
+# --- ticks ------------------------------------------------------------------
+xtick.direction:    out
+ytick.direction:    out
+xtick.major.width:  0.7
+ytick.major.width:  0.7
+xtick.minor.width:  0.5
+ytick.minor.width:  0.5
+xtick.major.size:   3.0
+ytick.major.size:   3.0
+xtick.minor.size:   1.8
+ytick.minor.size:   1.8
+xtick.major.pad:    2.5
+ytick.major.pad:    2.5
+xtick.color:        "#333333"
+ytick.color:        "#333333"
+xtick.labelcolor:   black
+ytick.labelcolor:   black
+
+# --- data elements ----------------------------------------------------------
+lines.linewidth:       1.5
+lines.markersize:      4.0
+lines.markeredgewidth: 0.0
+lines.solid_capstyle:  round
+patch.linewidth:       0.7
+hatch.linewidth:       0.6
+errorbar.capsize:      0
+boxplot.flierprops.markersize: 3
+scatter.edgecolors:    none
+
+# --- grid (off by default; enable per-axes only when it aids reading) --------
+axes.grid:       False
+grid.color:      "#D9D9D9"
+grid.linewidth:  0.5
+grid.alpha:      1.0
+
+# --- legend -----------------------------------------------------------------
+legend.frameon:       False
+legend.handlelength:  1.6
+legend.handletextpad: 0.5
+legend.labelspacing:  0.35
+legend.columnspacing: 1.1
+legend.borderpad:     0.3
+legend.borderaxespad: 0.4
+
+# --- colormaps --------------------------------------------------------------
+image.cmap:        viridis
+image.interpolation: nearest
