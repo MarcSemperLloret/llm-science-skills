@@ -28,6 +28,17 @@ REQUIRED_SECTIONS = {
 # Naming a model, a vendor or an access date in the AI declaration is easy to
 # leave behind from an earlier draft, and it is exactly what a screening editor
 # reads first.
+NOVELTY = re.compile(
+    r"\b(first (?:study|paper|work|time|to)\b"
+    r"|to (?:the best of )?our knowledge"
+    r"|no (?:previous|prior|other) (?:study|work|paper)"
+    r"|(?:has|have|had) (?:not|never) been (?:previously )?"
+    r"(?:studied|reported|shown|done|attempted|measured)"
+    r"|what has not been|we are the first"
+    r"|novel(?:ty)?\b|unprecedented|for the first time)",
+    re.I,
+)
+
 TOOL_NAMES = (
     r"\b(ChatGPT|GPT-?[0-9]|OpenAI|Codex|Claude|Anthropic|Gemini|Copilot"
     r"|Llama|Mistral|DeepSeek|Perplexity)\b"
@@ -104,6 +115,93 @@ def check_tex(path, abstract_max=250):
         findings.append(("NOTE", "placeholder",
                          "the source still contains an angle-bracket placeholder"))
 
+    findings += check_novelty(tex)
+    return findings
+
+
+def check_novelty(tex):
+    """Whether the paper says what is new, and places it.
+
+    Insufficient novelty is a desk-reject reason an editor gives in one line.
+    They are not judging whether the work is new; they are judging whether the
+    paper says what is new and against what. A manuscript that never makes the
+    claim leaves the editor to construct it, and the safe thing to do with a
+    paper you cannot place is return it.
+    """
+    findings = []
+    flat = " ".join(tex.split())
+    sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z\\])", flat)
+
+    claims = [(i, s) for i, s in enumerate(sentences) if NOVELTY.search(s)]
+    if not claims:
+        findings.append(("NOTE", "novelty",
+                         "no sentence states what is new. An editor should not have "
+                         "to infer the contribution; say it in the abstract and again "
+                         "at the end of the introduction"))
+    for index, sentence in claims:
+        window = " ".join(sentences[max(0, index - 2):index + 2])
+        if "cite" not in window:
+            findings.append(("NOTE", "novelty",
+                             f"a novelty claim with nothing cited around it: "
+                             f"{sentence.strip()[:80]}..."))
+    return findings
+
+
+def check_bibliography(bib_path, tex, min_refs=30, journal=None):
+    """The three things an editor checks about the references in a minute.
+
+    Volume, currency, and whether the paper engages with the journal it is being
+    sent to. The last is the fit signal: a submission that cites nothing from
+    its target venue reads as sent to the wrong address, whatever its subject.
+    """
+    import datetime
+
+    findings = []
+    text = Path(bib_path).read_text(encoding="utf-8", errors="replace")
+    entries = re.findall(r"@(\w+)\s*\{\s*([^,]+),(.*?)\n\}", text, re.S)
+
+    cited = set()
+    for group in re.findall(r"\\[a-zA-Z]*cite[a-zA-Z]*\*?(?:\[[^\]]*\])*\{([^}]+)\}", tex):
+        cited.update(k.strip() for k in group.split(",") if k.strip())
+    used = [(k.strip(), body) for _, k, body in entries if k.strip() in cited]
+
+    if used and len(used) < min_refs:
+        findings.append(("FAIL", "reference-count",
+                         f"only {len(used)} works are cited; for a strong journal that "
+                         "is itself a desk-reject reason, and editors say so"))
+
+    now = datetime.date.today().year
+    years = sorted(int(m.group(1)) for _, body in used
+                   for m in [re.search(r"year\s*=\s*[{\"]?((?:19|20)\d\d)", body)] if m)
+    if years:
+        median = years[len(years) // 2]
+        current = sum(1 for y in years if y >= now - 1)
+        findings.append(("INFO", "recency",
+                         f"{len(years)} dated, median {median}, {current} from "
+                         f"{now - 1} or later"))
+        if current < 5:
+            findings.append(("NOTE", "currency",
+                             f"only {current} citations from {now - 1} or later"))
+        if now - median > 8:
+            findings.append(("NOTE", "currency",
+                             f"median citation {median}, {now - median} years behind"))
+
+    if journal:
+        target = " ".join(w for w in journal.lower().split() if w not in ("the", "of"))
+        hits = sum(1 for _, body in used
+                   if target in " ".join(body.lower().split()))
+        if hits == 0:
+            findings.append(("FAIL", "journal-fit",
+                             f"nothing in the bibliography is published in {journal!r}. "
+                             "An editor reads that as a paper sent to the wrong "
+                             "journal; cite the conversation you are joining"))
+        elif hits < 3:
+            findings.append(("NOTE", "journal-fit",
+                             f"{hits} reference(s) from {journal!r}; thin engagement "
+                             "with the venue"))
+        else:
+            findings.append(("INFO", "journal-fit",
+                             f"{hits} references from {journal!r}"))
     return findings
 
 
@@ -162,13 +260,35 @@ def main(argv):
     if not argv:
         print(__doc__)
         return 2
-    abstract_max = 250
-    if "--abstract-max" in argv:
-        index = argv.index("--abstract-max")
-        abstract_max = int(argv[index + 1])
-        argv = argv[:index] + argv[index + 2:]
+    abstract_max, min_refs = 250, 30
+    journal = bib_path = None
+    for flag in ("--abstract-max", "--min-refs", "--journal", "--bib"):
+        if flag in argv:
+            index = argv.index(flag)
+            value = argv[index + 1]
+            argv = argv[:index] + argv[index + 2:]
+            if flag == "--abstract-max":
+                abstract_max = int(value)
+            elif flag == "--min-refs":
+                min_refs = int(value)
+            elif flag == "--journal":
+                journal = value
+            else:
+                bib_path = value
     tex = argv[0]
     findings = check_tex(tex, abstract_max) + check_log(tex)
+
+    source = _strip_comments(Path(tex).read_text(encoding="utf-8", errors="replace"))
+    if journal is None:
+        match = re.search(r"\\journal\{([^}]*)\}", source)
+        journal = match.group(1).strip() if match else None
+    bib = Path(tex).with_name("references.bib") if bib_path is None else Path(bib_path)
+    if bib.exists():
+        findings += check_bibliography(bib, source, min_refs=min_refs, journal=journal)
+    else:
+        findings.append(("NOTE", "bibliography",
+                         f"no bibliography found at {bib}; pass --bib to point at it"))
+
     for extra in argv[1:]:
         findings += check_pdf(extra)
     return 0 if report(findings, f"{tex}") else 1

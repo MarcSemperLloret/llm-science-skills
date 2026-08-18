@@ -52,6 +52,37 @@ words over the limit**. Both have appeared in real submissions from this group.
 Figures are screened with the `scientific-figures` skill; the statements come
 from `manuscript-starter`. If either has not been run, run it before this one.
 
+## The three reasons editors actually give
+
+Format and missing statements stop a submission, but the desk rejects that come
+with a sentence of explanation are almost always one of three. The script checks
+each as far as a script can.
+
+**Too few references, or too old.** An editor who opens a submission to a strong
+journal and finds thirteen citations has already decided. It is read as not
+knowing the field, and it is said out loud in the rejection. Volume and currency
+are separate: short and current fails, long and stale fails.
+
+**Insufficient novelty.** The editor is not judging whether the work is new. They
+are judging whether the paper *says* what is new and against what. A manuscript
+that never states the claim leaves them to construct it, and the safe thing to do
+with a paper you cannot place is return it. The check finds every novelty claim
+and whether anything is cited around it — and reports when there is no claim at
+all, which is the more common failure here.
+
+**Poor fit.** The strongest mechanical signal is the bibliography: a submission
+that cites nothing published in the journal it is being sent to reads as sent to
+the wrong address, whatever its subject. Pass `--journal` or let the script read
+`\journal{}` from the source.
+
+```bash
+python deskcheck.py manuscript.tex --journal "Water Research" --min-refs 40
+```
+
+Fixing fit by adding citations from the target journal is not gaming it. If the
+paper genuinely belongs there, that conversation exists and should already be
+cited; if it does not exist, that is the answer about fit.
+
 ## The judgement half
 
 Answer each of these out loud, with the evidence, and name the ones that fail.
