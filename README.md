@@ -16,6 +16,7 @@ because a defect reached a compiled PDF.
 | [`figure-polish`](skills/figure-polish/) | The editorial pass, run after the mechanical checks come back clean. Hierarchy, composition, text budget, and the question of whether anyone actually edited the figure. |
 | [`editorial-figures`](skills/editorial-figures/) | A chart that travels without a caption: README, slides, posters, outreach. Its rules on text are the opposite of the manuscript ones, deliberately. |
 | [`manuscript-starter`](skills/manuscript-starter/) | Starting a paper or its repository. Front matter and end matter as files to copy, plus the LaTeX and git conventions. |
+| [`desk-reject-simulation`](skills/desk-reject-simulation/) | The editor's first screen, before submitting. Mechanical submission checks as a script, then the judgement half: scope, claim, support, honesty of framing. Returns DESK REJECT, BORDERLINE or SEND OUT. |
 | [`research-feasibility`](skills/research-feasibility/) | Deciding whether an idea has enough signal, robustness and novelty to justify a full project: GO, REDIRECT, BRANCH or NO-GO. |
 
 ## Install
