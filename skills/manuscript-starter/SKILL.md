@@ -24,6 +24,24 @@ per paper: `<target journal>`, `<title>`, `<abstract>`, `<keyword>`, the Data
 availability paragraph and the Acknowledgments. Everything else is already
 correct.
 
+## Checking a manuscript against this skill
+
+The convention is fixed, so deviations are detectable. Run it on any manuscript,
+new or old:
+
+```bash
+python checkfront.py manuscript.tex
+```
+
+It verifies the author list and affiliation, that the CRediT statement names all
+three and ends with the equal-contribution sentence, that the funding section
+carries the right grant and funder, that the AI declaration names no product and
+no access date, and the class options and the two package traps.
+
+Deviations do not announce themselves while writing: an author name carried over
+from an older file, a declaration still naming the tool used two drafts ago.
+Run it before submitting, not only when starting.
+
 ## The authorship, verbatim
 
 ```latex
