@@ -19,22 +19,6 @@ because a defect reached a compiled PDF.
 | [`desk-reject-simulation`](skills/desk-reject-simulation/) | The editor's first screen, before submitting. Mechanical submission checks as a script, then the judgement half: scope, claim, support, honesty of framing. Returns DESK REJECT, BORDERLINE or SEND OUT. |
 | [`research-feasibility`](skills/research-feasibility/) | Deciding whether an idea has enough signal, robustness and novelty to justify a full project: GO, REDIRECT, BRANCH or NO-GO. |
 
-## Vendored from elsewhere
-
-Four skills are not mine. They come from
-[K-Dense-AI/scientific-agent-skills](https://github.com/K-Dense-AI/scientific-agent-skills),
-unmodified, under MIT, and they are here because the skills above depend on
-them or our manuscripts use them directly.
-
-| skill | what it is for |
-|---|---|
-| `paper-lookup` | Literature search across 11 APIs. `research-feasibility` will not issue a GO without a literature check, and this performs it. |
-| `statistical-power` | Sample size, power and minimum detectable effect, before the data are collected. |
-| `statistical-analysis` | Test selection, assumptions, effect sizes and reporting. |
-| `geopandas` | Vector geospatial work: census sections, station points, projections. |
-
-Provenance, licence and what was deliberately not taken: [THIRD-PARTY.md](THIRD-PARTY.md).
-
 ## Install
 
 This repository is an Agent Plugins 1.0.0 package: a root `plugin.json` and
