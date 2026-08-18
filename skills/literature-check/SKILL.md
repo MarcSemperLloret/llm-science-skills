@@ -27,6 +27,32 @@ literature could not be checked and mark novelty **UNVERIFIED**. Do not fill the
 gap with plausible-looking references, do not reconstruct a DOI, and do not
 attach a citation to a claim without having seen that the work supports it.
 
+## Searching
+
+```bash
+python litsearch.py "convective outflow detection citizen weather station"
+python litsearch.py "urban heat accessibility" --rows 20 --mailto you@example.org
+python litsearch.py --doi 10.5194/wcd-5-779-2024      # what that DOI actually is
+python litsearch.py --cites 10.5194/wcd-5-779-2024    # forward: who cites it
+python litsearch.py --refs  10.5194/wcd-5-779-2024    # backward: what it cites
+```
+
+It queries Crossref, OpenAlex, Europe PMC and arXiv together, merges duplicates,
+sorts by citation count and prints the source that returned each row. No
+credentials; `--mailto` enters the polite pools and is served faster.
+
+Four sources rather than one because each has a blind spot: Crossref and
+OpenAlex index what has a DOI, Europe PMC reaches the biomedical literature and
+its preprints, arXiv holds the computing, physics and statistics that often
+never acquire a DOI. A novelty claim checked against one database is not checked.
+
+`--cites` and `--refs` are the two directions of chaining below, done for you.
+Start from the closest paper you already know, not from a keyword: keyword search
+returns the popular, chaining returns the relevant.
+
+If a source does not answer, the run says so and continues; a silent database is
+not the same as an empty field, and the report should say which ones answered.
+
 ## The mechanical half
 
 ```bash
@@ -51,7 +77,7 @@ that is worth cleaning but is not a defect. **Novelty claims** are reported
 whether or not they are placed, because whether the surrounding citation actually
 supports the claim is not something a script can judge.
 
-## Searching, when a search tool is available
+## Chaining
 
 Work in both directions from what is already known:
 
