@@ -17,6 +17,7 @@ because a defect reached a compiled PDF.
 | [`editorial-figures`](skills/editorial-figures/) | A chart that travels without a caption: README, slides, posters, outreach. Its rules on text are the opposite of the manuscript ones, deliberately. |
 | [`manuscript-starter`](skills/manuscript-starter/) | Starting a paper or its repository. Front matter and end matter as files to copy, plus the LaTeX and git conventions. |
 | [`desk-reject-simulation`](skills/desk-reject-simulation/) | The editor's first screen, before submitting. Mechanical submission checks as a script, then the judgement half: scope, claim, support, honesty of framing. Returns DESK REJECT, BORDERLINE or SEND OUT. |
+| [`peer-review-simulation`](skills/peer-review-simulation/) | Attacking our own draft the way reviewers will, before submitting. Checks every abstract number against the body, then writes hostile reports and ranks the objections by damage. |
 | [`literature-check`](skills/literature-check/) | What the manuscript claims against what the literature says. Resolves every DOI against the registry, finds citations without entries and entries without citations, and locates every novelty claim so it can be defended. |
 | [`research-feasibility`](skills/research-feasibility/) | Deciding whether an idea has enough signal, robustness and novelty to justify a full project: GO, REDIRECT, BRANCH or NO-GO. |
 
