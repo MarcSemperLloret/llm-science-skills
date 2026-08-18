@@ -70,6 +70,14 @@ answers for Crossref, DataCite and the rest, so Zenodo deposits resolve too — 
 compares the registered title and year against the entry. That is what catches a
 reference that does not exist, or exists and is a different paper.
 
+It also reports **how many works are cited** and **how old they are**, which are
+two different failures. A bibliography can be short and entirely current, or long
+and entirely stale, and a reviewer reads both as not following the field. Thirteen
+cited works in a submission to a strong journal is a problem regardless of how
+recent they are; a median citation eight years behind the field is a problem
+regardless of how many there are. Pass `--min-refs` to set the floor for the
+venue.
+
 Two things it will report that are worth understanding before acting on them.
 **Entries never cited** do not reach the PDF, so they harm nothing; a large
 number of them usually means the file was inherited from another manuscript, and

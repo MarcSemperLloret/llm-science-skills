@@ -130,7 +130,7 @@ def check_bib(entries):
     return findings
 
 
-def check_usage(entries, tex_paths):
+def check_usage(entries, tex_paths, min_refs=30):
     findings = []
     text = ""
     for path in tex_paths:
@@ -159,13 +159,45 @@ def check_usage(entries, tex_paths):
                          f"{len(selfcites)} of {len(cited)} cited works are ours "
                          f"({len(selfcites) / len(cited):.0%}); editors notice"))
 
+    if cited and len(cited) < min_refs:
+        findings.append(("NOTE", "reference-count",
+                         f"only {len(cited)} works are cited. A reviewer for a strong "
+                         f"journal reads a short bibliography as not knowing the "
+                         f"field, whatever the paper says; {min_refs} is a floor, not "
+                         "a target"))
+
     years = sorted(int(e["year"]) for e in entries
                    if e["key"] in cited and re.fullmatch(r"(19|20)\d\d", e.get("year", "")))
     if years:
-        recent = sum(1 for y in years if y >= max(years) - 4)
+        # The baseline is today, not the newest entry in the file. Taking the
+        # maximum lets one forthcoming paper dated next year redefine what
+        # "recent" means and quietly disqualify this year's citations.
+        import datetime
+
+        now = datetime.date.today().year
+        newest = max(years)
+        median = years[len(years) // 2]
+        current = sum(1 for y in years if y >= now - 1)
         findings.append(("INFO", "recency",
-                         f"{len(years)} dated citations, median {years[len(years) // 2]}, "
-                         f"{recent} from the last five years"))
+                         f"{len(years)} dated citations, median {median}, "
+                         f"{current} from {now - 1} or later, newest {newest}"))
+        if newest > now:
+            findings.append(("NOTE", "future-year",
+                             f"a citation is dated {newest}, which is in the future; "
+                             "if it is forthcoming, say so in the entry"))
+        # Currency and volume are different failures. A short bibliography can be
+        # entirely current; a long one can be entirely old. Both get read as not
+        # following the field.
+        if current < 5:
+            findings.append(("NOTE", "currency",
+                             f"only {current} citations from {now - 1} or later; a "
+                             "reviewer checks whether the current literature is known "
+                             "before reading the method"))
+        if now - median > 8:
+            findings.append(("NOTE", "currency",
+                             f"the median citation is from {median} while the field "
+                             f"has reached {now}; the bibliography reads as "
+                             "assembled some time ago"))
 
     # Sentences, not lines: LaTeX wraps wherever the column ends, so a line is
     # not a unit of meaning, and a claim is routinely positioned by the sentence
@@ -255,13 +287,16 @@ def main(argv):
     verify = "--verify" in argv
     argv = [a for a in argv if a != "--verify"]
     limit = mailto = None
-    for flag, cast in (("--limit", int), ("--mailto", str)):
+    min_refs = 30
+    for flag, cast in (("--limit", int), ("--mailto", str), ("--min-refs", int)):
         if flag in argv:
             index = argv.index(flag)
             value = cast(argv[index + 1])
             argv = argv[:index] + argv[index + 2:]
             if flag == "--limit":
                 limit = value
+            elif flag == "--min-refs":
+                min_refs = value
             else:
                 mailto = value
 
@@ -270,7 +305,7 @@ def main(argv):
     findings = [("INFO", "entries", f"{len(entries)} bibliography entries")]
     findings += check_bib(entries)
     if tex:
-        findings += check_usage(entries, tex)
+        findings += check_usage(entries, tex, min_refs=min_refs)
     if verify:
         findings += verify_dois(entries, limit=limit, mailto=mailto)
     return 0 if report(findings, f"{bib}") else 1
