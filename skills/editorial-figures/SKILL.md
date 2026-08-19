@@ -47,8 +47,15 @@ from figcheck import check_figure, report
 report(check_figure(fig))
 ```
 
-Its text checks will complain about the headline and the source line. Those are
-the two NOTEs you decline here — and only those.
+Four of its findings are expected here and are declined out loud, with the
+reason. `width`, because the sizes in this skill are screen sizes and match no
+journal column deliberately. `prose` twice, once for the standfirst and once for
+the source line, both of which are sentences on purpose. And `axis-label` when
+the category names carry the axis, which is the usual case in an editorial bar
+or dot chart.
+
+Everything else it reports is a defect, including every overlap. FAIL is never
+declined here.
 
 ## The anatomy
 
@@ -66,13 +73,31 @@ Four elements, in this order down the page:
 4. **Source line** — small, grey, at the foot: where the data came from, and the
    date if it moves.
 
+Reserve the two bands before drawing anything. The style turns on
+`constrained_layout`, which knows about axes, titles and colour bars and knows
+nothing about a `fig.text` you place at a figure fraction. It re-packs the axes
+at draw time to fill the figure, and the standfirst then lands on the top row
+while the source line lands on the x axis label.
+
+`fig.subplots_adjust` does not fix this. `constrained_layout` discards those
+margins silently — no warning, no error, and the saved image looks like the code
+was ignored, because it was. Tell the layout engine the rectangle it may fill:
+
 ```python
-fig.suptitle("Model rankings change when the reference changes", x=0.01, ha="left")
-fig.text(0.01, 0.90, "Skill of six forecast systems against ERA5 and against stations",
-         ha="left", color="#666666", fontsize=10)
-fig.text(0.01, 0.02, "Source: AVAMET, ERA5. 2019–2025.",
-         ha="left", color="#888888", fontsize=9)
+fig, ax = plt.subplots(figsize=(8.0, 4.4))
+fig.get_layout_engine().set(rect=(0.0, 0.07, 1.0, 0.74))   # left, bottom, w, h
+
+fig.suptitle("Model rankings change when the reference changes",
+             x=0.012, y=0.95, ha="left")
+fig.text(0.012, 0.855, "Skill of six forecast systems against ERA5 and "
+                       "against stations",
+         ha="left", va="top", color="#666666", fontsize=10)
+fig.text(0.012, 0.035, "Source: AVAMET, ERA5. 2019–2025.",
+         ha="left", va="bottom", color="#888888", fontsize=9)
 ```
+
+The numbers are a starting point, not a constant: a two-line standfirst or a
+long source line needs a taller band. Run the checker and look at the image.
 
 ## Hierarchy
 
@@ -90,6 +115,8 @@ One annotation, not four.
 * no spectral colormaps, ever;
 * direct labelling before legends;
 * units on every axis, and decimal places the measurement supports;
+* a value that rounds to a signed zero is written as what it means — `no gain`,
+  `no change` — because `-0.00` is not a quantity a reader can do anything with;
 * no chartjunk, no 3-D, no pie beyond three slices;
 * honest axes: no truncated bar baselines, no cherry-picked limits;
 * the figure is regenerated from a script, never retouched by hand.

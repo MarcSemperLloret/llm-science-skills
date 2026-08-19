@@ -77,6 +77,54 @@ panel's letter, a value abutting the neighbour's tick labels, a colour bar
 pressed against the panel beside it — none of these overlap, and all of them read
 as one crowded block. If a gap looks tight on the page, it is tight: widen it.
 
+## Panels that show the same quantity
+
+Three defects hide here, and all three survive every mechanical check because
+each panel is correct on its own.
+
+**One quantity, one scale.** If two panels carry the same measurement, they
+share an axis and a range. Two ranges stacked vertically invite exactly the
+comparison the reader will make — this marker is further right than that one —
+and nothing in the figure warns them off. `sharex=True` and one explicit range
+covering both. A panel that then looks empty at one end was always empty; the
+separate range was hiding it.
+
+**One colour, one role, inside one figure.** The rule about keeping a mapping
+consistent across a manuscript has a sharper local form that is easier to break:
+the same blue meaning *the estimate* in the upper panel and *the pooled
+reference* in the lower one. Each panel reads correctly and the pair does not.
+Decide what each colour denotes for the whole figure, and draw context as
+context — thinner, grey, dashed, behind.
+
+**Panel height follows the number of rows.** Three categories given the height
+of seven do not read as three results, they read as a panel with something
+missing. In a stacked figure set `height_ratios` from the row counts rather than
+by eye. This is the vertical form of the full-width row spent on four bars, and
+it is the commoner of the two.
+
+## Placing a value label
+
+A number set beside its own datum is the most fragile object in a figure,
+because everything around it moves when anything is resized. Two placements fail
+predictably:
+
+* **Relative to its own marker.** Above the top row it collides with the panel
+  title; and a label offset upwards sits nearer the row above than its own, so
+  the reader attaches it to the wrong one.
+* **A long label in a right-hand column.** It grows leftwards into the data. An
+  interval written out in full is twenty characters and will reach the middle of
+  the panel.
+
+What survives is a fixed column, right-aligned, carrying a label short enough
+that the widest datum cannot reach it: the estimate alone, with the interval
+drawn as a bar and written in full in the table. Check the arithmetic rather than
+the appearance — widest datum, label width, column position — because at screen
+size everything looks like it fits.
+
+A left-aligned title has the same trap. It is aligned to the axes, not to the
+figure, and when long category names push the axes two thirds of the way across,
+the title has a third of the width you were looking at. Measure it there.
+
 ## Signs of an auto-generated figure
 
 Look for these specifically, and fix what you find:
@@ -165,6 +213,15 @@ type closer to everything positioned in axis fractions. Brackets, annotations an
 value labels that cleared each other at the old height can collide at the new
 one. Re-check after every resize, and look at the result rather than assuming the
 proportions carried over.
+
+The same applies to changing a range. Widening an axis to share it with another
+panel takes away the room a label was using, and the label does not move. If a
+pass changes a limit, look at every annotation in that panel before doing
+anything else.
+
+If two attempts at a placement both collide, stop moving it. The position is not
+the problem; the object is too big for where it is being asked to go. Shorten it,
+or give it a region of its own where nothing else can arrive.
 
 ## Done
 
