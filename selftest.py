@@ -108,6 +108,33 @@ finally:
     sample.unlink()
 check("no false drift on a percentage/fraction pair", not drift)
 
+print("\ndata smells fire on the failures they were written for")
+datasmell = load("silent-failure-audit/assets/datasmell.py")
+import csv as _csv, random as _random
+_random.seed(7)
+fixture = ROOT / "_selftest_smell.csv"
+rows = []
+for i in range(600):
+    station = "A" if i % 2 else "C"
+    temp = round(_random.gauss(22, 4), 1)
+    if station == "C" and _random.random() < 0.08:
+        temp = 0.0
+    shared = round(_random.gauss(15, 3), 2)
+    rows.append({"station": station, "temp": temp,
+                 "sensor_1": shared, "sensor_2": shared})
+with open(fixture, "w", newline="", encoding="utf-8") as handle:
+    writer = _csv.DictWriter(handle, fieldnames=list(rows[0]))
+    writer.writeheader()
+    writer.writerows(rows)
+try:
+    order, values = datasmell._columns(fixture)
+    codes = {c for _, c, _ in datasmell.check_sentinels(order, values, "station")}
+    check("a sentinel structured by group is a FAIL", "sentinel-structured" in codes)
+    dup = datasmell.check_duplicate_series(order, values)
+    check("one series under two labels is caught", any(c == "duplicate-series" for _, c, _ in dup))
+finally:
+    fixture.unlink()
+
 print()
 if FAILURES:
     print(f"{len(FAILURES)} FAILED: " + "; ".join(FAILURES))
