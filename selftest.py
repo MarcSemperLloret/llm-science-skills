@@ -76,8 +76,8 @@ for source in sorted(list((ROOT / "skills").rglob("*.py"))
     check(f"{source.parent.name}/{source.name}", not stray)
 
 print("\nnovelty is recognised in both registers")
-deskcheck = load("desk-reject-simulation/assets/deskcheck.py")
-litcheck = load("literature-check/assets/litcheck.py")
+deskcheck = load("desk-reject-simulation/scripts/deskcheck.py")
+litcheck = load("literature-check/scripts/litcheck.py")
 for pattern_name, pattern in (("deskcheck", deskcheck.NOVELTY),
                               ("litcheck", litcheck.NOVELTY)):
     check(f"{pattern_name}: boastful register",
@@ -105,7 +105,7 @@ check("title kept whole", fields.get("title") == "{E}urope and the {W}orld")
 check("year not lost after the protected brace", fields.get("year") == "2019")
 
 print("\na journal is not a journal whose name contains it")
-litsearch = load("literature-check/assets/litsearch.py")
+litsearch = load("literature-check/scripts/litsearch.py")
 key = litsearch._venue_key
 check("Internet of Things != IEEE Internet of Things Journal",
       key("Internet of Things") != key("IEEE Internet of Things Journal"))
@@ -125,7 +125,7 @@ check("stroked l survives folding", litsearch._citekey(entry2) == "celinskimysla
 print("\nan abstract percentage matches a fraction in the body")
 # 55.8% in front and 0.558 behind are the same number. Reporting a drift that is
 # not there is how a checker gets ignored when the drift is real.
-reviewcheck = load("peer-review-simulation/assets/reviewcheck.py")
+reviewcheck = load("peer-review-simulation/scripts/reviewcheck.py")
 sample = ROOT / "_selftest_sample.tex"
 sample.write_text(
     "\\begin{abstract}The design forfeits 55.8\\% of the attainable range.\n"
@@ -141,7 +141,7 @@ print("\nthe statistics checker fires on errors and not on prose")
 # It first reported a percentage as impossible because it had matched the hour
 # in "64.4% fall in 12:00-20:00" and the integer part of "an odds ratio of 2.74".
 # A FAIL that is wrong is worse than a miss, so both directions are pinned.
-statcheck = load("statistical-analysis/assets/statcheck.py")
+statcheck = load("statistical-analysis/scripts/statcheck.py")
 BAD = ("We found 43.5\\% of the 106 evaluable episodes, with p = 0.000. "
        "The effect was statistically significant.")
 GOOD = ("Of the cold episodes 64.4\\% fall in 12:00--20:00, and the odds ratio "
@@ -158,7 +158,7 @@ check("a mention of significance is not a claim",
               for f in statcheck.check_pvalues(statcheck._strip(GOOD))))
 
 print("\ndata smells fire on the failures they were written for")
-datasmell = load("silent-failure-audit/assets/datasmell.py")
+datasmell = load("silent-failure-audit/scripts/datasmell.py")
 import csv as _csv, random as _random
 _random.seed(7)
 fixture = ROOT / "_selftest_smell.csv"

@@ -1,6 +1,6 @@
 """Publication figure toolkit for the scientific-figures skill.
 
-    import sys; sys.path.insert(0, r"<skill>/assets")
+    import sys; sys.path.insert(0, r"<skill>/scripts")
     import figstyle as fs
 
     fig, axes = fs.figure("double", 3.2, ncols=2, sharey=True)
@@ -22,8 +22,12 @@ import matplotlib.pyplot as plt
 
 from figcheck import check_figure, report
 
-_ASSETS = Path(__file__).resolve().parent
-STYLE = _ASSETS / "publication.mplstyle"
+# The style is a resource, so it lives in assets/ while this lives in scripts/.
+# Look beside this file first, so a flat copy of the skill still works.
+_HERE = Path(__file__).resolve().parent
+STYLE = next((c for c in (_HERE / "publication.mplstyle",
+                          _HERE.parent / "assets" / "publication.mplstyle")
+              if c.exists()), _HERE / "publication.mplstyle")
 
 #: Standard column widths in inches. Override when the journal specifies others.
 WIDTH = {"single": 3.35, "onehalf": 5.5, "double": 7.0}

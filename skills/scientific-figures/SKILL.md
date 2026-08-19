@@ -25,22 +25,25 @@ Do not hand-roll rcParams, palettes or export calls. Use the toolkit.
 ## The toolkit
 
 ```
-scientific-figures/assets/     # the assets directory beside this SKILL.md
-    publication.mplstyle   the style: final-size typography, Okabe-Ito, Type 42 fonts
-    figstyle.py            figure(), label_panels(), shared_legend(), save(), palette C
-    figcheck.py            deterministic QC; also a CLI for auditing exported files
-    figtiles.py            cuts a rendered figure into tiles for close inspection
-    figpage.py             scans a compiled PDF for captions running off the page
+scientific-figures/            # beside this SKILL.md
+    assets/
+        publication.mplstyle   the style: final-size typography, Okabe-Ito, Type 42
+    scripts/
+        figstyle.py            figure(), label_panels(), shared_legend(), save(), palette C
+        figcheck.py            deterministic QC; also a CLI for auditing exported files
+        figtiles.py            cuts a rendered figure into tiles for close inspection
+        figpage.py             scans a compiled PDF for captions running off the page
+    references/                encodings, maps, traps, integrity, visual guidelines, polish
 ```
 
-Put that `assets` directory on `sys.path`. Its location depends on where the
+Put the `scripts` directory on `sys.path`. Its location depends on where the
 skills were installed — `~/.claude/skills/`, `~/.agents/skills/`, a plugin
 directory, or a checkout inside the project — so use the path this SKILL.md was
 read from rather than a hard-coded one.
 
 ```python
 import sys
-sys.path.insert(0, "<.../scientific-figures/assets>")
+sys.path.insert(0, "<.../scientific-figures/scripts>")
 import figstyle as fs                       # importing applies the style
 
 fig, axes = fs.figure("double", 3.2, ncols=2, sharey=True)

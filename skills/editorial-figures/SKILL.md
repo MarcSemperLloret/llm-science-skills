@@ -50,7 +50,7 @@ any medium.
 
 ```python
 import sys
-sys.path.insert(0, str(SKILLS / "scientific-figures/assets"))
+sys.path.insert(0, str(SKILLS / "scientific-figures/scripts"))
 from figcheck import check_figure, report
 report(check_figure(fig))
 ```
