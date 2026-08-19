@@ -12,8 +12,7 @@ because a defect reached a compiled PDF.
 
 | skill | what it is for |
 |---|---|
-| [`scientific-figures`](skills/scientific-figures/) | Any figure for a paper, report or thesis. Ships a matplotlib style, a helper module and three command-line checkers: figure QC, tiling for close visual inspection, and a page-level check of figure plus caption against the text block. |
-| [`figure-polish`](skills/figure-polish/) | The editorial pass, run after the mechanical checks come back clean. Hierarchy, composition, text budget, and the question of whether anyone actually edited the figure. |
+| [`scientific-figures`](skills/scientific-figures/) | Any figure for a paper, report or thesis. Ships a matplotlib style, a helper module and three command-line checkers — figure QC, tiling for close visual inspection, and a page-level check of figure plus caption against the text block — and the editorial pass that runs once those come back clean. |
 | [`editorial-figures`](skills/editorial-figures/) | A chart that travels without a caption: README, slides, posters, outreach. Its rules on text are the opposite of the manuscript ones, deliberately. |
 | [`manuscript-starter`](skills/manuscript-starter/) | Starting a paper or its repository. Front matter and end matter as files to copy, plus the LaTeX and git conventions. |
 | [`desk-reject-simulation`](skills/desk-reject-simulation/) | The editor's first screen, before submitting. Mechanical submission checks as a script, then the judgement half: scope, claim, support, honesty of framing. Returns DESK REJECT, BORDERLINE or SEND OUT. |

@@ -1,6 +1,6 @@
 ---
 name: scientific-figures
-description: Create, modify, review and polish publication-quality scientific figures, plots, charts, maps and multi-panel visualizations. Use when generating or editing figures for scientific papers, reports, theses, presentations of research results, or when the user asks to improve an existing scientific plot. Applies a shared matplotlib style, a final-size layout discipline and an automatic quality-control pass covering typography, colour, overlap, clipping, export format and font embedding. Do not trigger for decorative illustrations, UI charts, dashboards or casual exploratory plots unless publication-quality output is requested; for artifact, web or dashboard charts use the dataviz skill instead.
+description: Create, modify, review and polish publication-quality scientific figures, plots, charts, maps and multi-panel visualizations. Use when generating or editing figures for scientific papers, reports, theses, presentations of research results, or when the user asks to improve an existing scientific plot. Applies a shared matplotlib style, a final-size layout discipline, an automatic quality-control pass covering typography, colour, overlap, clipping, export format and font embedding, and an editorial pass that judges hierarchy, composition and text budget once the figure is correct. Do not trigger for decorative illustrations, UI charts, dashboards or casual exploratory plots unless publication-quality output is requested; for artifact, web or dashboard charts use the dataviz skill instead.
 ---
 
 # Scientific Figures
@@ -111,7 +111,7 @@ class), so the two commonest failures cannot happen. Check the rest by eye.
 
    Use a finer grid for dense multi-panel figures: `--grid 3 2`, or one tile per
    panel.
-6. **Run the editorial pass** from the `figure-polish` skill, as a separate step
+6. **Run the editorial pass** in `references/polish.md`, as a separate step
    with its own verdict. Do not skip it because step 4 came back clean and step 5
    showed no defects: zero FAIL means the figure is *correct*, and correct is the
    floor, not the goal. A figure can pass every check and still look like
@@ -318,6 +318,10 @@ Details when you need them:
   Read this one when a layout fails in a way that makes no sense.
 * `references/integrity.md` — statistical honesty, captions, consistency across
   a manuscript, modifying an existing figure, journal overrides.
+* `references/polish.md` — the editorial pass: hierarchy, composition, text
+  budget, panels that share a quantity, placing a value label, and the review
+  that decides whether anyone actually edited this figure. Step 6, and the
+  longest of these; read it every time, not only when something looks wrong.
 
 ## Efficiency
 
@@ -331,8 +335,9 @@ and do not re-run the analysis pipeline when cached inputs exist.
 The figure is done when the code runs, `fs.save()` reports zero FAIL, every NOTE
 has been acted on or consciously accepted, the PNG has been looked at, the
 caption has been read and its duplicates removed from the graphic, the
-`figure-polish` review has been applied and answered, and the analysis was not
-touched on the way.
+editorial review in `references/polish.md` has been applied and answered, and
+the analysis was not touched on the way.
 
 Zero FAIL is not done. It means nothing is broken. Quality is judged in
-`figure-polish`, and that judgement is part of finishing, not an optional extra.
+`references/polish.md`, and that judgement is part of finishing, not an
+optional extra.

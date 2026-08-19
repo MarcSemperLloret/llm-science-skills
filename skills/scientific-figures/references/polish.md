@@ -1,13 +1,8 @@
----
-name: figure-polish
-description: Raise a technically correct scientific figure to professional, editorially designed publication quality. Use after a figure renders and passes mechanical QC, or when the user says a figure looks generic, plain, amateurish, auto-generated, crowded or unbalanced, or asks to make it look more professional, more polished or journal-ready. Covers visual hierarchy, composition, whitespace, typographic refinement, restrained colour, multi-panel coherence, removal of plotting-library defaults, and a final editorial review of the rendered image. Do not trigger for exploratory plots, dashboards or UI charts.
----
-
 # Figure polish
 
-This is the pass that runs **after** the `scientific-figures` checker reports
-zero FAIL. Polish never overrides scientific integrity, correct encodings or
-final-size legibility; if those are not in place, go back to that skill first.
+The editorial pass, step 6 of the workflow in `SKILL.md`. It runs **after**
+the checker reports zero FAIL. Polish never overrides scientific integrity, correct encodings or
+final-size legibility; if those are not in place, fix those first.
 
 The threshold is not "technically correct and free of overlaps". It is:
 
