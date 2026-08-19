@@ -23,12 +23,10 @@ metres. An empty result set, well formed, returned with HTTP 200.
 
 ## The result that is too clean
 
-In a documented audit of sixteen such failures in one project, **thirteen of the
-sixteen wrong results were cleaner than the correct ones**. That is not a
-coincidence, it is the mechanism. A defect usually removes variation: it
-collapses a comparison, empties a set, replaces a spread of measurements with
-one repeated constant. Removing variation is exactly what makes a result look
-decisive.
+**The wrong result is usually cleaner than the right one.** That is not a
+coincidence, it is the mechanism. A defect removes variation: it collapses a
+comparison, empties a set, replaces a spread of measurements with one repeated
+constant. Removing variation is exactly what makes a result look decisive.
 
 So the alarm is not an outlier or an impossible value. The alarm is **the absence
 of a mechanical reason for the result you are looking at**. Before believing a
@@ -53,20 +51,20 @@ range you declare.
 Two of its findings are FAIL because they are wrong whatever the analysis does
 with them.
 
-**A structured sentinel.** A temperature archive that stores absent as `0.0` at
-one rate in one station and a much higher rate in another does not add noise, it
-adds a spatially organised bias — and one of the same order as the signal being
-looked for, which it can imitate. Pass `--group` whenever a grouping exists; the
+**A structured sentinel.** A value meaning "absent" that is read as a
+measurement does not add noise when its rate differs between groups — it adds a
+bias organised the same way the data are, which can be of the same order as the
+signal and can imitate it. Pass `--group` whenever a grouping exists; the
 overall rate is the number that hides this.
 
 **A duplicated series.** Distinct labels carrying identical values are one
 measurement wearing several names. Every spatial statistic computed across them
 is then a statement about one instrument, and nothing in the file looks wrong.
 
-`--expect` is the answer to a field whose name is not its semantics: a column
-called `value` that holds gross floor area rather than height gives a median of
-eighty for a city of flats, and only a declared plausible range catches it. Say
-out loud what the number should look like, before you look.
+`--expect` is the answer to a field whose name is not its semantics. A column
+called `value` may hold a different quantity in a different unit, and nothing
+about the file says so; only a declared plausible range catches it. Say out loud
+what the number should look like, before you look.
 
 ## The provocations
 
@@ -101,16 +99,18 @@ something has no effect.
 median maximises reclassification by construction. Either anchor the choice
 externally, or report the whole curve and say which point is primary and why.
 
-**Prefer intra-source validation.** Cross-source matching invents its own error:
-joining heights from one inventory to floor counts from another produced an
-impossible negative bias, while the subset of one source carrying both fields
-gave exactly the expected value. Validate inside a source before you validate
-across two.
+**Prefer intra-source validation.** Matching entities across two sources
+invents its own error, and it is easy to mistake that error for a finding.
+Where one source carries both quantities, even for a subset, validate there
+first; a calibration that disagrees across sources and agrees within one is a
+matching problem, not a measurement.
 
-**Name variables so they cannot be read backwards.** A warm bias of +1.85 was
-written up as a cold bias of −1.85 because the correction was read as the error.
-Use `raw_error_a_minus_b` and `correction_b_minus_a`, and assert at run time that
-each still means what its name says.
+**Name variables so they cannot be read backwards.** A bias and the correction
+that removes it have opposite signs, and a name like `bias` does not say which
+one it holds — so the sign of a conclusion can invert in the write-up while
+every number stays correct. Use `raw_error_a_minus_b` and
+`correction_b_minus_a`, and assert at run time that each still means what its
+name says.
 
 **Bound an incomplete layer from both sides.** If a layer is missing a component,
 compute the result with the component absent and with it maximal. If the
@@ -128,9 +128,8 @@ This deserves its own step because it is invisible and it is guaranteed.
 When a pipeline is re-run after a change, every published number has to be
 recomputed from its source, not re-read in the text. A figure that survived a
 re-run is plausible **because it was once correct**, so reading the manuscript
-cannot find it. In the audited project, four magnitudes survived a full
-re-execution at their old values, and two of them sat exactly on the bounds the
-analysis itself flags as suspicious.
+cannot find it — and a stale value can land exactly on the bounds the analysis
+itself flags as suspicious, where it looks like a result.
 
 Write the check as a script: recompute each published magnitude from its source
 file and search for it literally in the manuscript. Run it before every
@@ -148,10 +147,10 @@ came back clean, because a control that passed is evidence and an audit that
 reports only hits cannot be distinguished from an audit that looked once.
 
 For anything found, give the defect, the consequence had it gone unnoticed, and
-the safeguard now in place. "The station filter was too aggressive" is not
-usable; "the first rule discarded a station for two zeros in half a million
-parts, leaving one municipal station of nine, so the panel was unusable and for
-the wrong reason; discard now requires a systemic defect" is.
+the safeguard now in place. "The filter was too aggressive" is not usable; "the
+rule discarded a unit for two isolated zeros, leaving one of nine, so the panel
+was unusable and for the wrong reason — discard now requires a systemic defect,
+not isolated observations" is.
 
 ## Rules
 

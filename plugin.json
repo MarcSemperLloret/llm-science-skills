@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "scientific-skills",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Agent Skills for scientific research and manuscript production: figure standards with an executable checker, editorial polish, the fixed front and end matter of a paper, a literature search and citation verifier across four open indexes, a discipline for interpreting results, a statistical-validity review, a research feasibility protocol, an audit for the analysis failures that return a plausible result instead of an error, a hostile peer-review rehearsal, and a simulation of the editor's desk-reject screen.",
   "author": {
     "name": "Marc Semper"

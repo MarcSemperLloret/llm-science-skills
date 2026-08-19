@@ -6,8 +6,9 @@ description: >-
   submission, after a major revision, or whenever the user asks how strong a
   paper is or what a reviewer would say. Runs the consistency checks a
   reviewer performs with a pencil, then writes real reviewer reports from
-  several hostile perspectives, ranks the objections by how much damage each
-  does, and says which are fatal, which are answerable and what to change now.
+  two or three unconvinced perspectives chosen for the work in hand, ranks each
+  objection by its scientific consequence rather than its wording, and says
+  which are fatal, which are answerable and what to change now.
 ---
 
 # Peer review simulation
@@ -17,8 +18,18 @@ that would cost the paper, while there is still time to remove it.
 
 The failure mode of a simulated review is politeness. A report that lists small
 improvements and concludes "minor revision" is worse than useless: it produces
-the feeling of having been reviewed without the benefit. Write the review that
-would sting.
+the feeling of having been reviewed without the benefit.
+
+The opposite failure is theatre. A review written to sound severe produces
+strong adjectives, a general air of disapproval, and objections ranked by how
+damning they sound. That is just as useless and it is harder to notice, because
+it feels rigorous.
+
+**The review must be adversarial, specific and evidential. Severity comes from
+the scientific consequence of an objection, not from the force of the wording.**
+An objection is worth its rank if answering it would change a number, a claim or
+a conclusion; if it would not, it is a minor point however sharply it is put.
+Every point names a section, a line, and what specifically is wrong.
 
 Run it after `desk-reject-simulation`, which asks whether the paper survives ten
 minutes. This one assumes it does, and asks what happens when somebody reads the
@@ -43,15 +54,29 @@ claimed with no interval anywhere, and a paper with no limitations.
 ## Write the reports
 
 Produce two or three reports, each from a reviewer with a different reason to be
-unconvinced. Give each a real perspective rather than a label:
+unconvinced. **Choose the perspectives that this paper would actually be sent
+to**, rather than running the same panel every time; a reviewer who has nothing
+to say about a paper writes a report with nothing in it.
+
+Pick from these, or name a better one for the work in hand:
 
 * **the methodologist**, who does not care about the domain and asks whether the
   design can support the claim at all;
 * **the domain expert**, who knows the nearest published work and wants to know
   what is actually new;
-* **the statistician**, who reads the numbers, the sample sizes and the
-  multiplicity, and who is unimpressed by anything that rests on a handful of
-  cases.
+* **the statistician**, who reads the sample sizes, the dependence and the
+  multiplicity, and is unimpressed by anything resting on a handful of cases;
+* **the experimentalist**, who asks how the measurement was made and what it
+  would take to reproduce it;
+* **the causal reviewer**, who asks what the estimand is and what would have to
+  be true for the association to be the effect claimed;
+* **the data reviewer**, who asks about provenance, coverage, exclusions and
+  what the missing units have in common;
+* **the practitioner**, who asks what would change in practice if the result
+  were true, and whether the paper has said so.
+
+State which perspectives you chose and why they are the right ones for this
+paper.
 
 Each report: a paragraph of summary, then numbered major points, then minor
 ones. Cite section and line. A major point is one that, unanswered, changes the
