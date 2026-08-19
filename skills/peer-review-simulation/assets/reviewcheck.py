@@ -84,7 +84,18 @@ def check(path):
         except ValueError:
             continue
         places = len(bare.split(".")[1]) if "." in bare else 0
-        if any(round(candidate, places) == quoted for candidate in body_values):
+        # An abstract routinely states as a percentage what the results state as
+        # a fraction: 55.8% in front, 0.558 behind. Reporting that as a value
+        # that appears nowhere sends the author hunting for a drift that is not
+        # there, and the next real drift is trusted less for it.
+        targets = [quoted]
+        if value.endswith("%"):
+            targets.append(quoted / 100)
+        elif quoted <= 1:
+            targets.append(quoted * 100)
+        if any(round(candidate, places) == target
+               or round(candidate, places + 2) == round(target, places + 2)
+               for candidate in body_values for target in targets):
             continue
         missing.append(value)
     for value in missing:

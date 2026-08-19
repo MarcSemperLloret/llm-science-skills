@@ -124,6 +124,12 @@ def check_bib(entries):
             if not entry.get("doi") and not entry.get("url"):
                 findings.append(("NOTE", "no-doi",
                                  f"{key}: no DOI and no URL; a reader cannot follow it"))
+        if not entry.get("title"):
+            findings.append(("FAIL", "no-title",
+                             f"{key}: the entry has no title; it will print as an "
+                             "anonymous line a reader cannot follow"))
+        if not entry.get("author") and entry["kind"] not in ("misc", "techreport"):
+            findings.append(("NOTE", "no-author", f"{key}: the entry has no author"))
         year = entry.get("year", "")
         if year and not re.fullmatch(r"(19|20)\d\d", year):
             findings.append(("NOTE", "year", f"{key}: year {year!r} is not a year"))

@@ -147,6 +147,18 @@ def check_novelty(tex):
     return findings
 
 
+def _venue_key(name):
+    """A journal name reduced to what makes it that journal.
+
+    Substring matching is wrong here and wrong in a way that flatters: "Internet
+    of Things" occurs inside "IEEE Internet of Things Journal", and "Water
+    Research" inside "Water Research X". Those are different journals, and
+    counting them as the target turns a failed fit check into a pass.
+    """
+    name = re.sub(r"[^a-z0-9 ]", " ", (name or "").lower())
+    return " ".join(w for w in name.split() if w not in ("the", "of", "and"))
+
+
 def split_entries(text):
     """Whole entries, counting braces.
 
@@ -203,9 +215,12 @@ def check_bibliography(bib_path, tex, min_refs=30, journal=None):
                              f"median citation {median}, {now - median} years behind"))
 
     if journal:
-        target = " ".join(w for w in journal.lower().split() if w not in ("the", "of"))
-        hits = sum(1 for _, body in used
-                   if target in " ".join(body.lower().split()))
+        target = _venue_key(journal)
+        hits = 0
+        for _, body in used:
+            field = re.search(r"journal\s*=\s*[{\"]([^}\"]*)", body)
+            if field and _venue_key(field.group(1)) == target:
+                hits += 1
         if hits == 0:
             findings.append(("FAIL", "journal-fit",
                              f"nothing in the bibliography is published in {journal!r}. "

@@ -25,24 +25,37 @@ import json
 import re
 import subprocess
 import sys
+import time
 from urllib.parse import quote_plus, quote
 
 SOURCES = ("crossref", "openalex", "europepmc", "arxiv")
 
 
 def _get(url, accept="application/json"):
+    """Body and HTTP status, kept apart.
+
+    Returning only the body makes a refused request look like an empty one, and
+    an empty result is a claim about the literature. Rate limiting is the common
+    case: several queries in a row and the index starts declining, quietly.
+    """
     result = subprocess.run(
-        ["curl", "-sL", "--max-time", "30", "-H", f"Accept: {accept}", url],
+        ["curl", "-sL", "--max-time", "30", "-w", "\n%{http_code}",
+         "-H", f"Accept: {accept}", url],
         capture_output=True, encoding="utf-8", errors="replace",
     )
-    return result.stdout
+    body, _, status = result.stdout.rpartition("\n")
+    time.sleep(0.34)                      # stay inside the polite request rate
+    return body, status.strip()
 
 
 def _json(url):
+    body, status = _get(url)
+    if status != "200":
+        raise RuntimeError(f"HTTP {status or 'no response'}")
     try:
-        return json.loads(_get(url))
+        return json.loads(body)
     except ValueError:
-        return None
+        raise RuntimeError("the reply was not JSON")
 
 
 def _record(source, title, year, authors, doi, venue, cited=None):
@@ -106,7 +119,9 @@ def europepmc(query, rows, mailto):
 def arxiv(query, rows, mailto):
     url = ("http://export.arxiv.org/api/query?search_query=all:"
            f"{quote_plus(query)}&max_results={rows}")
-    text = _get(url, accept="application/atom+xml")
+    text, status = _get(url, accept="application/atom+xml")
+    if status != "200":
+        raise RuntimeError(f"HTTP {status}")
     out = []
     for entry in re.findall(r"<entry>(.*?)</entry>", text, re.S):
         title = re.search(r"<title>(.*?)</title>", entry, re.S)
@@ -215,13 +230,66 @@ def bibtex(dois, mailto=None):
         )
         entry = result.stdout.strip()
         if not entry.startswith("@"):
-            print(f"% UNRESOLVED {doi} -- do not cite it")
+            print(f"% UNRESOLVED {doi} -- do not cite it", file=sys.stderr)
             continue
+        # Some registrars deposit a bare record: a DOI, a journal and a year,
+        # with no title and no authors. Pasted into a bibliography it prints as
+        # an anonymous line that no reader can follow, and nothing downstream
+        # objects. Fill it from the index instead of emitting it.
+        if not re.search(r"(?i)title=\{", entry):
+            patch = by_doi(doi, mailto)
+            if patch and patch[0]["title"]:
+                fields = f'title={{{patch[0]["title"]}}}, '
+                if patch[0]["authors"]:
+                    fields += f'author={{{patch[0]["authors"]}}}, '
+                entry = re.sub(r"(\{[^,]+,\s*)", r"\1" + fields, entry, count=1)
+                print(f"% NOTE the registrar's record for {doi} carried no title; "
+                      "filled from the index and worth checking", file=sys.stderr)
+            else:
+                print(f"% INCOMPLETE {doi} -- no title on record, do not paste "
+                      "this", file=sys.stderr)
+                continue
         entry = re.sub(r"(?i)(title=\{)(.*?)(\},)",
                        lambda m: m.group(1) + _protect_caps(m.group(2)) + m.group(3),
                        entry, count=1)
         print(entry)
         print()
+
+
+def resolve_venue(name):
+    """The registry's identifier for a journal, from its name or ISSN.
+
+    Filtering results after the fact cannot work for this: a keyword search
+    returns what is popular across the whole literature, and a given journal
+    contributes a handful of rows at best. Ask the index for that journal's
+    works instead.
+    """
+    url = ("https://api.openalex.org/sources?search=" + quote_plus(name)
+           + "&per-page=5")
+    for item in (_json(url) or {}).get("results", []):
+        if _venue_key(item.get("display_name")) == _venue_key(name):
+            return item["id"].split("/")[-1], item.get("display_name")
+    return None, None
+
+
+def in_venue(query, rows, venue, mailto):
+    """Works from one journal, ranked by relevance to the query."""
+    source, display = resolve_venue(venue)
+    if not source:
+        print(f"  NOTE  no journal in the index is named {venue!r} exactly")
+        return []
+    url = (f"https://api.openalex.org/works?search={quote_plus(query)}"
+           f"&filter=primary_location.source.id:{source}&per-page={rows}")
+    if mailto:
+        url += f"&mailto={mailto}"
+    out = []
+    for item in (_json(url) or {}).get("results", []):
+        authors = ", ".join(a.get("author", {}).get("display_name", "").split()[-1]
+                            for a in item.get("authorships", [])[:3])
+        out.append(_record("in-venue", item.get("title"), item.get("publication_year"),
+                           authors, item.get("doi"), display,
+                           item.get("cited_by_count")))
+    return out
 
 
 def dedupe(records):
@@ -246,10 +314,22 @@ if hasattr(sys.stdout, "reconfigure"):    # titles carry Greek and dashes
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
+def _venue_key(name):
+    """A journal name reduced to what makes it that journal.
+
+    Substring matching is wrong here and wrong in a way that flatters: "Internet
+    of Things" occurs inside "IEEE Internet of Things Journal", and "Water
+    Research" inside "Water Research X". Those are different journals, and
+    counting them as the target turns a failed fit check into a pass.
+    """
+    name = re.sub(r"[^a-z0-9 ]", " ", (name or "").lower())
+    return " ".join(w for w in name.split() if w not in ("the", "of", "and"))
+
+
 def show(records, venue=None):
     if venue:
-        needle = venue.lower()
-        records = [r for r in records if needle in (r["venue"] or "").lower()]
+        target = _venue_key(venue)
+        records = [r for r in records if _venue_key(r["venue"]) == target]
     if not records:
         print("  nothing found")
         return
@@ -259,7 +339,8 @@ def show(records, venue=None):
         print(f"  {record['year']:<5} {cited} cites  {record['source']:<18} "
               f"{record['title'][:74]}")
         if record["doi"]:
-            print(f"        {record['doi']}  {record['authors'][:50]}")
+            print(f"        {record['doi']}  {record['venue'][:34]}  "
+                  f"{record['authors'][:34]}")
     print(f"  -> {len(records)} distinct works")
 
 
@@ -282,6 +363,14 @@ def main(argv):
             else:
                 source = value
 
+    def guarded(function, *args):
+        try:
+            return function(*args)
+        except RuntimeError as error:
+            print(f"  NOTE  the index did not answer ({error}); this is not an "
+                  "empty field")
+            return []
+
     if "--bibtex" in argv:
         index = argv.index("--bibtex")
         bibtex(argv[index + 1:], mailto)
@@ -291,18 +380,22 @@ def main(argv):
         if flag in argv:
             doi = argv[argv.index(flag) + 1]
             print(f"{flag} {doi}")
-            show(function(doi, mailto) if flag == "--doi"
-                 else function(doi, rows, mailto), venue)
+            show(guarded(function, doi, mailto) if flag == "--doi"
+                 else guarded(function, doi, rows, mailto), venue)
             return 0
 
     query = " ".join(argv)
-    print(f"query: {query}")
+    print(f"query: {query}" + (f"   in: {venue}" if venue else ""))
     records = []
+    if venue:
+        show(dedupe(guarded(in_venue, query, rows, venue, mailto)))
+        return 0
     for name in (source,) if source else SOURCES:
         try:
             records += globals()[name](query, rows, mailto)
         except Exception as error:                      # one API down is not fatal
-            print(f"  NOTE  {name} did not answer ({type(error).__name__})")
+            print(f"  NOTE  {name} did not answer ({error}); that is not the same "
+                  "as an empty field")
     show(dedupe(records), venue)
     return 0
 
