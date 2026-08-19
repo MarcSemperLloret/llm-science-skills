@@ -21,6 +21,62 @@ because a defect reached a compiled PDF.
 | [`literature-check`](skills/literature-check/) | What the manuscript claims against what the literature says. Resolves every DOI against the registry, finds citations without entries and entries without citations, and locates every novelty claim so it can be defended. |
 | [`research-feasibility`](skills/research-feasibility/) | Deciding whether an idea has enough signal, robustness and novelty to justify a full project: GO, REDIRECT, BRANCH or NO-GO. |
 
+## Checking the checkers
+
+no control characters in any asset
+  ok    desk-reject-simulation/deskcheck.py
+  ok    literature-check/litcheck.py
+  ok    literature-check/litsearch.py
+  ok    manuscript-starter/checkfront.py
+  ok    peer-review-simulation/reviewcheck.py
+  ok    scientific-figures/figcheck.py
+  ok    scientific-figures/figpage.py
+  ok    scientific-figures/figstyle.py
+  ok    scientific-figures/figtiles.py
+
+novelty is recognised in both registers
+  ok    deskcheck: boastful register
+  ok    deskcheck: gap register
+  ok    deskcheck: not ordinary methods prose
+  ok    litcheck: boastful register
+  ok    litcheck: gap register
+  ok    litcheck: not ordinary methods prose
+
+bibliography entries are found however they are laid out
+  ok    deskcheck: one line
+  ok    deskcheck: house style
+  ok    litcheck: one line
+  ok    litcheck: house style
+
+field values survive brace-protected capitals
+  ok    title kept whole
+  ok    year not lost after the protected brace
+
+a journal is not a journal whose name contains it
+  ok    Internet of Things != IEEE Internet of Things Journal
+  ok    Water Research != Water Research X
+  ok    The Lancet == Lancet
+
+titles keep their capitals and keys keep their letters
+  ok    acronyms braced
+  ok    ordinary words left alone
+  ok    accents folded, letters kept
+  ok    stroked l survives folding
+
+an abstract percentage matches a fraction in the body
+  ok    no false drift on a percentage/fraction pair
+
+all checks passed
+
+Offline, a second or two. Every case in it pins a behaviour that broke silently
+at least once: a regex escape eaten before it reached the file, a bibliography
+parser that required a house layout, a journal name matched by substring so that
+a different journal counted as the target. None of those raised an error. They
+returned a plausible wrong answer, which is worse, and they were all found by
+using the tools on a real manuscript rather than by reading them.
+
+Run it after editing any asset.
+
 ## Install
 
 This repository is an Agent Plugins 1.0.0 package: a root `plugin.json` and

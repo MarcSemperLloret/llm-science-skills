@@ -35,6 +35,8 @@ python litsearch.py "urban heat accessibility" --rows 20 --mailto you@example.or
 python litsearch.py --doi 10.5194/wcd-5-779-2024      # what that DOI actually is
 python litsearch.py --cites 10.5194/wcd-5-779-2024    # forward: who cites it
 python litsearch.py --refs  10.5194/wcd-5-779-2024    # backward: what it cites
+python litsearch.py "sensor placement" --venue "Internet of Things"
+python litsearch.py --bibtex 10.5194/wcd-5-779-2024   # the entry, ready to paste
 ```
 
 It queries Crossref, OpenAlex, Europe PMC and arXiv together, merges duplicates,
@@ -52,6 +54,54 @@ returns the popular, chaining returns the relevant.
 
 If a source does not answer, the run says so and continues; a silent database is
 not the same as an empty field, and the report should say which ones answered.
+The indexes rate-limit after a handful of queries in quick succession, and a
+refusal is printed as a refusal rather than as an absence of results.
+
+## Searching one journal
+
+```bash
+python litsearch.py "sensor placement deployment" --venue "Internet of Things"
+```
+
+`--venue` resolves the journal in the index and asks for its works, rather than
+filtering a general search afterwards. That distinction is the whole feature: a
+keyword search returns what is popular across the entire literature, and any one
+journal contributes a row or two, so filtering after the fact finds almost
+nothing and reads as though the journal has never published on the subject.
+
+The name must match in full. `"Internet of Things"` is not `"IEEE Internet of
+Things Journal"` and `"Water Research"` is not `"Water Research X"`; matching on
+a substring would count a different journal as the target, which turns a failed
+fit check into a pass. If no journal matches exactly, the run says so.
+
+This is what answers the fit half of a desk reject. A manuscript that cites
+nothing published in the journal it is being sent to reads as sent to the wrong
+address, and the fix is to read what that journal has published on the subject
+and cite what genuinely bears on the argument.
+
+## Taking the entry from the registrar
+
+```bash
+python litsearch.py --bibtex 10.1016/j.watres.2024.121989 10.1038/s41467-024-49276-z
+```
+
+Never type a bibliography entry. Typing is where fabrication enters: the year
+drifts, the volume is guessed, a word leaves the title, and none of it is
+visible again. Ask doi.org for the record, which answers for Crossref, DataCite
+and the rest.
+
+Three things the emitted entry already handles. Capitals in the title are braced,
+because a numeric style otherwise prints `SARS-CoV-2 RNA` as `Sars-cov-2 rna` in
+the reference list, permanently and invisibly from the source. The key is built
+from the first author and year with accents folded rather than deleted, so a name
+survives as `munoz2018` instead of `muoz2018`. And a record deposited with no
+title at all is filled from the index or refused, rather than emitted as an
+anonymous line no reader can follow.
+
+Diagnostics go to stderr, so redirecting stdout into a `.bib` gives only entries.
+Check the DOIs afterwards with `litcheck --verify` anyway: generating an entry
+proves the DOI resolves, not that the work says what you are about to cite it
+for.
 
 ## The mechanical half
 
