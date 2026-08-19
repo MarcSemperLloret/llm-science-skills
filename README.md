@@ -19,6 +19,7 @@ because a defect reached a compiled PDF.
 | [`peer-review-simulation`](skills/peer-review-simulation/) | Attacking our own draft the way reviewers will, before submitting. Checks every abstract number against the body, then writes hostile reports and ranks the objections by damage. |
 | [`literature-check`](skills/literature-check/) | What the manuscript claims against what the literature says. Resolves every DOI against the registry, finds citations without entries and entries without citations, and locates every novelty claim so it can be defended. |
 | [`silent-failure-audit`](skills/silent-failure-audit/) | The failures that return a plausible result instead of an error. A data-defect scanner for disguised missing values, duplicated series and saturated metrics, then the provocations that make a quiet failure loud. |
+| [`scientific-thinking`](skills/scientific-thinking/) | Interpreting a result, proposing a mechanism, or stating a conclusion. Separates observation from inference from speculation, forces competing explanations before commitment, and keeps confidence proportional to evidence rather than to fluency. |
 | [`research-feasibility`](skills/research-feasibility/) | Deciding whether an idea has enough signal, robustness and novelty to justify a full project: GO, REDIRECT, BRANCH or NO-GO. |
 
 ## Checking the checkers
