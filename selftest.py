@@ -137,6 +137,26 @@ finally:
     sample.unlink()
 check("no false drift on a percentage/fraction pair", not drift)
 
+print("\nthe statistics checker fires on errors and not on prose")
+# It first reported a percentage as impossible because it had matched the hour
+# in "64.4% fall in 12:00-20:00" and the integer part of "an odds ratio of 2.74".
+# A FAIL that is wrong is worse than a miss, so both directions are pinned.
+statcheck = load("statistical-analysis/assets/statcheck.py")
+BAD = ("We found 43.5\\% of the 106 evaluable episodes, with p = 0.000. "
+       "The effect was statistically significant.")
+GOOD = ("Of the cold episodes 64.4\\% fall in 12:00--20:00, and the odds ratio "
+        "was 2.74. Strong detections were 43.4\\% of the 106 evaluable episodes "
+        "(95\\% CI 1.65--5.36). No injection-level significance test was performed.")
+check("an unreachable percentage is a FAIL",
+      any(f[0] == "FAIL" for f in statcheck.check_percentages(statcheck._strip(BAD))))
+check("a clock time is not a denominator",
+      not statcheck.check_percentages(statcheck._strip(GOOD)))
+check("p = 0.000 is caught",
+      any(f[1] == "p-zero" for f in statcheck.check_pvalues(statcheck._strip(BAD))))
+check("a mention of significance is not a claim",
+      not any(f[1] == "no-effect-size"
+              for f in statcheck.check_pvalues(statcheck._strip(GOOD))))
+
 print("\ndata smells fire on the failures they were written for")
 datasmell = load("silent-failure-audit/assets/datasmell.py")
 import csv as _csv, random as _random
