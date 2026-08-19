@@ -28,8 +28,8 @@ skills under `skills/`. Every immediate child of `skills/` that contains a
 `SKILL.md` is a skill.
 
 ```bash
-npx skills add <owner>/scientific-skills          # Claude Code, Codex, Cursor, Gemini CLI
-gh skill install <owner>/scientific-skills        # or, with the GitHub CLI
+npx skills add MarcSemperLloret/llm-science-skills          # Claude Code, Codex, Cursor, Gemini CLI
+gh skill install MarcSemperLloret/llm-science-skills        # or, with the GitHub CLI
 ```
 
 Manual installation, for any host: copy the contents of `skills/` into whichever
@@ -43,7 +43,7 @@ directory that host reads.
 | Codex | `codex plugins install .` from a local checkout |
 
 ```bash
-git clone <repo> /tmp/scientific-skills
+git clone https://github.com/MarcSemperLloret/llm-science-skills /tmp/scientific-skills
 cp -r /tmp/scientific-skills/skills/* ~/.claude/skills/
 ```
 

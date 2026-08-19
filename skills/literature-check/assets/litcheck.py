@@ -31,15 +31,38 @@ NOVELTY = re.compile(
     r"\b(first (?:study|paper|work|time|to)\b"
     r"|to (?:the best of )?our knowledge"
     r"|no (?:previous|prior|other) (?:study|work|paper)"
-    # Only the negative sense. Plain "has been shown" is ordinary prose about
-    # the work itself and matched everywhere.
     r"|(?:has|have|had) (?:not|never) been (?:previously )?"
     r"(?:studied|reported|shown|done|attempted|measured)"
-    r"|what has not been"
+    r"|what has not been|we are the first"
     r"|novel(?:ty)?\b|unprecedented|for the first time"
-    r"|we are the first)",
+    # Careful writing states novelty as a gap rather than a boast. A checker
+    # that knows only the boastful register reports the best-written papers as
+    # making no claim at all.
+    r"|a (?:clear )?gap remains|gap in the literature"
+    r"|(?:remains?|remain) (?:largely )?(?:unaddressed|unexplored|untested|open)"
+    r"|no (?:existing|published|current|available) "
+    r"(?:study|work|approach|method|framework|analysis)"
+    r"|we are (?:aware of no|not aware of any)"
+    r"|(?:has|have) yet to be"
+    # The bare phrase catches ordinary methods prose -- "none of these
+    # observations enters the validation field" -- so require a verb that can
+    # only be predicated of prior work.
+    r"|none of (?:them|these|which|the above) (?:couples?|combines?|addresses"
+    r"|address|evaluates?|examines?|tests?|measures?|provides?|reports?"
+    r"|has|have|does|do|is|are)\b)",
     re.I,
 )
+
+# This pattern has been silently destroyed twice by an escape being eaten before
+# it reached the file, each time leaving a checker that matched nothing and
+# reported every manuscript as making no claim. A pattern that cannot fail
+# loudly will fail quietly, so make it prove itself at import.
+for _probe in ("To our knowledge, no previous study has done this",
+               "a gap remains, in that none of them couples A to B",
+               "we introduce a novel framework"):
+    assert NOVELTY.search(_probe), "the novelty pattern is broken: " + _probe
+assert not NOVELTY.search("none of these observations enters the field")
+
 
 STOPWORDS = {"the", "a", "an", "of", "and", "in", "on", "for", "with", "to",
              "from", "by", "at", "as", "is", "are", "using", "via"}
