@@ -52,41 +52,53 @@ def check(path):
                          f"{WRONG_NAME!r} appears; the published form of the first "
                          "author is 'Marc Semper', without the second surname"))
 
+    # A different collaboration is legitimate, so departing from the house
+    # default is a NOTE. What is never legitimate is a name in the author list
+    # that the CRediT statement does not cover, and that is checked against this
+    # manuscript's own authors rather than against the defaults.
     declared = re.findall(r"\\author\[[^\]]*\]\{([^}]*)\}", tex)
+    clean = []
     if declared:
-        clean = [re.sub(r"\\[a-zA-Z]+(\[[^\]]*\])?(\{[^}]*\})?", "", d).strip()
-                 for d in declared]
-        for expected in AUTHORS:
-            if not any(expected in name for name in clean):
-                findings.append(("FAIL", "author-list",
-                                 f"{expected!r} is not in the author list"))
-        for name in clean:
-            if name and not any(e in name for e in AUTHORS):
-                findings.append(("NOTE", "author-list",
-                                 f"unexpected author {name!r}"))
-        if AFFILIATION not in flat:
+        # The outer capture stops at the first closing brace, so an author
+        # carrying \corref{cor1} arrives truncated as "Marc Semper\corref{cor1".
+        # Everything from the first backslash on is markup, not a name.
+        clean = [d.split("\\")[0].strip() for d in declared]
+        clean = [c for c in clean if c]
+        missing = [e for e in AUTHORS if not any(e in name for name in clean)]
+        extra = [c for c in clean if not any(e in c for e in AUTHORS)]
+        if missing or extra:
+            findings.append(("NOTE", "author-list",
+                             "this paper does not carry the default author list"
+                             + (f"; missing {', '.join(map(repr, missing))}" if missing
+                                else "")
+                             + (f"; also {', '.join(map(repr, extra))}" if extra
+                                else "")
+                             + ". Confirm it is intended rather than inherited"))
+        if not missing and AFFILIATION not in flat:
             findings.append(("FAIL", "affiliation",
-                             "the University of Alicante affiliation block is missing "
-                             "or altered"))
+                             "the default authors are present but the University of "
+                             "Alicante affiliation block is missing or altered"))
 
     # The end matter is only expected where the end matter lives.
     if re.search(r"CRediT authorship contribution", tex):
         block = _flat(tex.split("CRediT authorship contribution")[1][:900])
-        for expected in AUTHORS:
-            if expected not in block:
+        for name in clean:
+            surname = name.split()[-1]
+            if surname not in block:
                 findings.append(("FAIL", "credit",
-                                 f"{expected!r} is missing from the CRediT statement"))
+                                 f"{name!r} is in the author list and not in the "
+                                 "CRediT statement; every author needs a role"))
         if EQUAL not in flat:
-            findings.append(("FAIL", "credit",
-                             f"the CRediT statement does not end with {EQUAL!r}"))
+            findings.append(("NOTE", "credit",
+                             f"the CRediT statement does not end with {EQUAL!r}; "
+                             "correct if the contributions genuinely differed"))
 
     if re.search(r"section\*?\{Funding", tex):
-        if GRANT not in flat:
-            findings.append(("FAIL", "funding",
-                             f"the funding section does not carry grant {GRANT}"))
-        if FUNDER not in flat:
-            findings.append(("FAIL", "funding",
-                             f"the funding section does not carry {FUNDER}"))
+        if GRANT not in flat or FUNDER not in flat:
+            findings.append(("NOTE", "funding",
+                             f"the funding section does not carry grant {GRANT} from "
+                             f"{FUNDER}. Correct if this work was funded otherwise, "
+                             "and never leave an inherited grant number in place"))
 
     declaration = re.search(r"generative AI(.*?)(\\section|\Z)", tex, re.S)
     if declaration:
