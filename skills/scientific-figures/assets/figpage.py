@@ -78,7 +78,15 @@ def check_document(path, slack=10.0):
                 continue
             break
         deepest = max(b[3] for b in rest)
-        if deepest > body_bottom + slack:
+        # Only on a page that actually carries a float. A text page can end a
+        # line or two low for ordinary reasons -- a display, a float above it
+        # pushing the block down -- and reporting that as a figure overrunning
+        # the page sends the author looking for a figure that is not the
+        # problem. This check exists for figure plus caption.
+        has_float = bool(page.get_images(full=False)) or any(
+            d["rect"].width > 40 and d["rect"].height > 40
+            for d in page.get_drawings())
+        if has_float and deepest > body_bottom + slack:
             findings.append((
                 "NOTE", number,
                 f"content runs {deepest - body_bottom:.0f} pt below the text bottom "

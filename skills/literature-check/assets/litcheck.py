@@ -279,15 +279,29 @@ def verify_dois(entries, limit=None, mailto=None, pause=0.15):
         if mailto:
             headers += ["-H", f"User-Agent: litcheck (mailto:{mailto})"]
         result = subprocess.run(
-            ["curl", "-sL", "--max-time", "25", *headers, url],
+            ["curl", "-sL", "--max-time", "25", "-w", "\n%{http_code}",
+             *headers, url],
             capture_output=True, encoding="utf-8", errors="replace",
         )
+        body, _, status = result.stdout.rpartition("\n")
+        status = status.strip()
         time.sleep(pause)
-        try:
-            message = json.loads(result.stdout)
-        except ValueError:
+        # A timeout, a rate limit and a dead registration are three different
+        # statements. Only one of them means the reference is wrong, and calling
+        # the other two "does not resolve" sends the author to fix a DOI that is
+        # fine -- and teaches them to disbelieve the check when it is right.
+        if status in ("404", "410"):
             findings.append(("FAIL", "doi-unresolved",
-                             f"{entry['key']}: DOI {doi} does not resolve"))
+                             f"{entry['key']}: DOI {doi} returns {status}; the "
+                             "registration is dead, do not cite it as it stands"))
+            continue
+        try:
+            message = json.loads(body)
+        except ValueError:
+            findings.append(("NOTE", "doi-uncertain",
+                             f"{entry['key']}: DOI {doi} could not be checked "
+                             f"(HTTP {status or 'no response'}); this is not "
+                             "evidence against it, try again"))
             continue
         title = message.get("title") or ""
         registered = title[0] if isinstance(title, list) else title

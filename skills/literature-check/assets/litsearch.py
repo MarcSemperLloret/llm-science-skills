@@ -26,6 +26,7 @@ import re
 import subprocess
 import sys
 import time
+import unicodedata
 from urllib.parse import quote_plus, quote
 
 SOURCES = ("crossref", "openalex", "europepmc", "arxiv")
@@ -210,6 +211,34 @@ def _protect_caps(title):
     return " ".join(out)
 
 
+def _citekey(entry):
+    """A readable key built from the first author and the year.
+
+    The registrar's own key drops any letter it cannot encode, so Munoz becomes
+    Mu_oz and Celinski-Myslaw becomes Celi_ski_Mys_aw. Stripping the leftovers
+    gives muoz2018 and celiskimysaw2020, which nobody can read in a citation.
+    Fold the accents instead of deleting the letters.
+    """
+    author = re.search(r"author=\{(.*?)\}(?=,)", entry)
+    year = re.search(r"year=\{(\d{4})\}", entry)
+    if not author or not year:
+        return None
+    surname = author.group(1).split(" and ")[0].split(",")[0].strip()
+    surname = surname.split()[-1] if "," not in author.group(1) else surname
+    # NFKD folds a diacritic off its base letter, but a few letters are not a
+    # base plus a mark at all -- the Polish stroked l among them -- and would
+    # simply vanish, turning Myslaw into Mysaw.
+    for letter, plain in ((chr(322), "l"), (chr(321), "L"), (chr(248), "o"),
+                          (chr(216), "O"), (chr(273), "d"), (chr(223), "ss"),
+                          (chr(230), "ae"), (chr(198), "Ae"), (chr(240), "d"),
+                          (chr(254), "th"), (chr(261), "a")):
+        surname = surname.replace(letter, plain)
+    folded = unicodedata.normalize("NFKD", surname)
+    folded = "".join(c for c in folded if not unicodedata.combining(c))
+    folded = re.sub(r"[^A-Za-z]", "", folded).lower()
+    return f"{folded}{year.group(1)}" if folded else None
+
+
 def bibtex(dois, mailto=None):
     """The registrar's own BibTeX for each DOI.
 
@@ -252,6 +281,9 @@ def bibtex(dois, mailto=None):
         entry = re.sub(r"(?i)(title=\{)(.*?)(\},)",
                        lambda m: m.group(1) + _protect_caps(m.group(2)) + m.group(3),
                        entry, count=1)
+        key = _citekey(entry)
+        if key:
+            entry = re.sub(r"(@\w+\{)[^,]+", lambda m: m.group(1) + key, entry, count=1)
         print(entry)
         print()
 
