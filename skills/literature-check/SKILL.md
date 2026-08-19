@@ -24,6 +24,36 @@ what it is cited for, and is actually cited. A fabricated or mismatched
 reference is the one error a reader can verify in seconds, an author never
 re-checks, and a journal treats as a serious matter.
 
+## The four modes
+
+This skill answers four different questions, and the caller usually needs one of
+them rather than all four. Say which mode you are in; it decides what is run and
+what a good answer looks like.
+
+**Mode A — novelty.** Has this been done, and where does the closest work stop?
+Called by `research-feasibility` before a pilot is designed, and again for every
+signal the pilot turns up. Output: the closest published work, named, and the
+classification of the overlap. Search with `--rank recent` and chain in both
+directions. Nothing about a `.bib` file belongs here.
+
+**Mode B — claim and citation audit.** Does each citation support the sentence
+it is attached to, and does every novelty claim in the manuscript name what it
+is new against? Called before submission. Output: the claims that are unplaced
+and the citations that do not carry what they are cited for.
+
+**Mode C — bibliography hygiene.** Does every DOI resolve to the work the entry
+describes, is anything cited without an entry or entered without a citation, and
+how large and how current is the bibliography? This is `litcheck.py` and it is
+almost entirely mechanical.
+
+**Mode D — venue landscape.** What has the target journal published on this
+subject, and does the manuscript engage with it? Called by
+`desk-reject-simulation` for the fit half of the screen. This is `--venue`.
+
+Modes B and C run together before a submission. A and D do not: A is about the
+field and D is about one journal, and mixing them produces a bibliography that
+looks like an attempt to flatter an editor.
+
 ## Never assert a reference from memory
 
 A citation is a factual claim about a document. Producing one without checking it
@@ -47,9 +77,17 @@ python litsearch.py "sensor placement" --venue "Internet of Things"
 python litsearch.py --bibtex 10.5194/wcd-5-779-2024   # the entry, ready to paste
 ```
 
-It queries Crossref, OpenAlex, Europe PMC and arXiv together, merges duplicates,
-sorts by citation count and prints the source that returned each row. No
-credentials; `--mailto` enters the polite pools and is served faster.
+It queries Crossref, OpenAlex, Europe PMC and arXiv together, merges duplicates
+and prints the source that returned each row. No credentials; `--mailto` enters
+the polite pools and is served faster.
+
+**Ranking is a choice and it matters.** The default puts the most cited first,
+which is right for mapping a field. It is wrong for a novelty question, and
+wrong in the direction that flatters: the paper that destroys a novelty claim is
+usually recent and lightly cited, because it has not had time to accumulate
+citations — which is exactly why nobody has told you about it. Pass
+`--rank recent` in mode A. Citation counts stay on every row as evidence of
+centrality; they stop deciding the order.
 
 Four sources rather than one because each has a blind spot: Crossref and
 OpenAlex index what has a DOI, Europe PMC reaches the biomedical literature and

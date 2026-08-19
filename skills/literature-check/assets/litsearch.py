@@ -9,6 +9,7 @@ checked.
     python litsearch.py "convective outflow detection mesonet"
     python litsearch.py "urban heat accessibility" --source openalex --rows 20
     python litsearch.py "wastewater resistome" --venue "Water Research" --rows 50
+    python litsearch.py "task-driven sensor placement" --rank recent   # for novelty
     python litsearch.py --doi 10.1175/BAMS-D-16-0067.1            # what it is
     python litsearch.py --cites 10.1175/BAMS-D-16-0067.1          # who cites it
     python litsearch.py --refs 10.1175/BAMS-D-16-0067.1           # what it cites
@@ -358,14 +359,22 @@ def _venue_key(name):
     return " ".join(w for w in name.split() if w not in ("the", "of", "and"))
 
 
-def show(records, venue=None):
+def show(records, venue=None, rank="citations"):
     if venue:
         target = _venue_key(venue)
         records = [r for r in records if _venue_key(r["venue"]) == target]
     if not records:
         print("  nothing found")
         return
-    records.sort(key=lambda r: (-(r["cited"] or 0), r["year"]))
+    if rank == "recent":
+        # For a novelty question, ranking by citation count is backwards. The
+        # paper that destroys a novelty claim is usually recent and lightly
+        # cited: it has not had time to accumulate citations, which is exactly
+        # why nobody has told you about it yet. Citations stay on the row as
+        # evidence of centrality; they stop deciding the order.
+        records.sort(key=lambda r: (r["year"] or "0", r["cited"] or 0), reverse=True)
+    else:
+        records.sort(key=lambda r: (-(r["cited"] or 0), r["year"]))
     for record in records:
         cited = f"{record['cited']:>5}" if record["cited"] is not None else "    -"
         print(f"  {record['year']:<5} {cited} cites  {record['source']:<18} "
@@ -381,7 +390,8 @@ def main(argv):
         print(__doc__)
         return 0 if argv else 2
     rows, mailto, source, venue = 10, None, None, None
-    for flag in ("--rows", "--mailto", "--source", "--venue"):
+    rank = "citations"
+    for flag in ("--rows", "--mailto", "--source", "--venue", "--rank"):
         if flag in argv:
             index = argv.index(flag)
             value = argv[index + 1]
@@ -392,6 +402,8 @@ def main(argv):
                 mailto = value
             elif flag == "--venue":
                 venue = value
+            elif flag == "--rank":
+                rank = value
             else:
                 source = value
 
@@ -413,14 +425,14 @@ def main(argv):
             doi = argv[argv.index(flag) + 1]
             print(f"{flag} {doi}")
             show(guarded(function, doi, mailto) if flag == "--doi"
-                 else guarded(function, doi, rows, mailto), venue)
+                 else guarded(function, doi, rows, mailto), venue, rank)
             return 0
 
     query = " ".join(argv)
     print(f"query: {query}" + (f"   in: {venue}" if venue else ""))
     records = []
     if venue:
-        show(dedupe(guarded(in_venue, query, rows, venue, mailto)))
+        show(dedupe(guarded(in_venue, query, rows, venue, mailto)), rank=rank)
         return 0
     for name in (source,) if source else SOURCES:
         try:
@@ -428,7 +440,7 @@ def main(argv):
         except Exception as error:                      # one API down is not fatal
             print(f"  NOTE  {name} did not answer ({error}); that is not the same "
                   "as an empty field")
-    show(dedupe(records), venue)
+    show(dedupe(records), venue, rank)
     return 0
 
 
