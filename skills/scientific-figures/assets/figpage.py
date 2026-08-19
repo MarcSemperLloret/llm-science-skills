@@ -96,9 +96,9 @@ def check_document(path, slack=10.0):
 
 
 def main(argv):
-    if not argv:
+    if not argv or {"-h", "--help"} & set(argv):
         print(__doc__)
-        return 2
+        return 0 if argv else 2
     bad = 0
     for arg in argv:
         findings, bottom = check_document(arg)

@@ -51,9 +51,9 @@ def tile(path, grid=(2, 2), zoom=1.5, overlap=0.12, out_dir=None):
 
 
 def main(argv):
-    if not argv:
+    if not argv or {"-h", "--help"} & set(argv):
         print(__doc__)
-        return 2
+        return 0 if argv else 2
     source = argv[0]
     grid, zoom = (2, 2), 1.5
     if "--grid" in argv:

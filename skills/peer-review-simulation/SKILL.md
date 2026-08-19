@@ -1,6 +1,13 @@
 ---
 name: peer-review-simulation
-description: Attack our own manuscript the way the reviewers will, before it is submitted, and fix what falls. Use when a draft is complete, before submission, after a major revision, or whenever the user asks how strong a paper is or what a reviewer would say. Runs the consistency checks a reviewer performs with a pencil, then writes real reviewer reports from several hostile perspectives, ranks the objections by how much damage each does, and says which are fatal, which are answerable and what to change now.
+description: >-
+  Attack our own manuscript the way the reviewers will, before it is
+  submitted, and fix what falls. Use when a draft is complete, before
+  submission, after a major revision, or whenever the user asks how strong a
+  paper is or what a reviewer would say. Runs the consistency checks a
+  reviewer performs with a pencil, then writes real reviewer reports from
+  several hostile perspectives, ranks the objections by how much damage each
+  does, and says which are fatal, which are answerable and what to change now.
 ---
 
 # Peer review simulation

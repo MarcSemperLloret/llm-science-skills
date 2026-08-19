@@ -1,6 +1,16 @@
 ---
 name: scientific-figures
-description: Create, modify, review and polish publication-quality scientific figures, plots, charts, maps and multi-panel visualizations. Use when generating or editing figures for scientific papers, reports, theses, presentations of research results, or when the user asks to improve an existing scientific plot. Applies a shared matplotlib style, a final-size layout discipline, an automatic quality-control pass covering typography, colour, overlap, clipping, export format and font embedding, and an editorial pass that judges hierarchy, composition and text budget once the figure is correct. Do not trigger for decorative illustrations, UI charts, dashboards or casual exploratory plots unless publication-quality output is requested; for artifact, web or dashboard charts use the dataviz skill instead.
+description: >-
+  Create, modify, review and polish publication-quality scientific figures,
+  plots, charts, maps and multi-panel visualizations. Use when generating or
+  editing figures for scientific papers, reports, theses, presentations of
+  research results, or when the user asks to improve an existing scientific
+  plot. Applies a shared matplotlib style, a final-size layout discipline, an
+  automatic quality-control pass covering typography, colour, overlap,
+  clipping, export format and font embedding, and an editorial pass that
+  judges hierarchy, composition and text budget once the figure is correct. Do
+  not trigger for decorative illustrations, UI charts, dashboards or casual
+  exploratory plots unless publication-quality output is requested.
 ---
 
 # Scientific Figures
@@ -84,7 +94,7 @@ dependency for cosmetic reasons.
 inspects matplotlib objects. What still applies to them: every rule in this
 skill, `figpage.py` on the compiled document, and looking at the rendered pages.
 A pgfplots figure is automatically 1:1, since it is typeset in the document, and
-its type sizes are the document's own (`ootnotesize` is 10 pt in a 12 pt
+its type sizes are the document's own (`\footnotesize` is 10 pt in a 12 pt
 class), so the two commonest failures cannot happen. Check the rest by eye.
 
 ## Mandatory sequence

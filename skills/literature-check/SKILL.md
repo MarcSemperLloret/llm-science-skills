@@ -1,6 +1,14 @@
 ---
 name: literature-check
-description: Check what a manuscript claims against what the literature actually says, and verify that every reference exists and says it. Use before claiming novelty, when assessing whether an idea is already published, when a bibliography is being assembled or cleaned, before submitting, and whenever research-feasibility needs its literature check. Verifies DOIs against the registry, finds references cited but missing and entries never cited, and locates every novelty claim so it can be defended. Do not use to write a related-work section from memory.
+description: >-
+  Check what a manuscript claims against what the literature actually says,
+  and verify that every reference exists and says it. Use before claiming
+  novelty, when assessing whether an idea is already published, when a
+  bibliography is being assembled or cleaned, before submitting, and whenever
+  research-feasibility needs its literature check. Verifies DOIs against the
+  registry, finds references cited but missing and entries never cited, and
+  locates every novelty claim so it can be defended. Do not use to write a
+  related-work section from memory.
 ---
 
 # Literature check

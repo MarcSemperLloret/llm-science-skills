@@ -1,6 +1,13 @@
 ---
 name: silent-failure-audit
-description: Find the analysis failures that return a plausible result instead of an error. Use when a result looks clean, when a pipeline has been re-run after a change, before freezing an analysis, before writing up a number, and whenever a figure seems too good. Provides a data-defect scanner and a protocol of deliberate provocations - negative controls, label permutation, saturation flags, recomputation from source - that make a quiet failure loud. Do not use as a substitute for a statistical review.
+description: >-
+  Find the analysis failures that return a plausible result instead of an
+  error. Use when a result looks clean, when a pipeline has been re-run after
+  a change, before freezing an analysis, before writing up a number, and
+  whenever a figure seems too good. Provides a data-defect scanner and a
+  protocol of deliberate provocations - negative controls, label permutation,
+  saturation flags, recomputation from source - that make a quiet failure
+  loud. Do not use as a substitute for a statistical review.
 ---
 
 # Silent failure audit

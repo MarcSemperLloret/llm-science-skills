@@ -37,14 +37,43 @@ def check(label, condition):
         FAILURES.append(label)
 
 
-print("no control characters in any asset")
+print("every skill's frontmatter is valid YAML")
+# One description contained a colon followed by a space, which a plain YAML
+# scalar cannot hold. It parsed nowhere strict and nothing said so.
+import re as _re
+try:
+    import yaml as _yaml
+except ImportError:
+    _yaml = None
+for skill in sorted((ROOT / "skills").glob("*/SKILL.md")):
+    block = _re.match(r"---\n(.*?)\n---", skill.read_text(encoding="utf-8"), _re.S)
+    ok = block is not None
+    if ok and _yaml is not None:
+        try:
+            data = _yaml.safe_load(block.group(1))
+            ok = bool(data.get("name")) and bool(data.get("description"))
+        except Exception:
+            ok = False
+    check(f"{skill.parent.name} frontmatter", ok)
+
+print("\nevery script answers --help")
+# --help is how an agent discovers a tool. These treated it as a filename and
+# died with a traceback.
+import subprocess as _sub
+for script in sorted((ROOT / "skills").rglob("*.py")):
+    done = _sub.run([sys.executable, str(script), "--help"],
+                    capture_output=True, text=True)
+    check(f"{script.name} --help", done.returncode == 0 and bool(done.stdout.strip()))
+
+print("\nno control characters in any asset")
 # A backslash escape eaten before it reaches the file turns \b into a backspace.
 # The pattern then requires a control character that never appears, matches
 # nothing, and reports every manuscript as making no claim. This happened twice.
-for source in sorted((ROOT / "skills").rglob("*.py")):
+for source in sorted(list((ROOT / "skills").rglob("*.py"))
+                     + list((ROOT / "skills").rglob("*.md"))):
     text = source.read_text(encoding="utf-8")
     stray = {c for c in text if ord(c) < 9 or 11 <= ord(c) < 32}
-    check(f"{source.parent.parent.name}/{source.name}", not stray)
+    check(f"{source.parent.name}/{source.name}", not stray)
 
 print("\nnovelty is recognised in both registers")
 deskcheck = load("desk-reject-simulation/assets/deskcheck.py")

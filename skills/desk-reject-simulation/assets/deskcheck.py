@@ -315,9 +315,9 @@ def report(findings, header=None):
 
 
 def main(argv):
-    if not argv:
+    if not argv or {"-h", "--help"} & set(argv):
         print(__doc__)
-        return 2
+        return 0 if argv else 2
     abstract_max, min_refs = 250, 30
     journal = bib_path = None
     for flag in ("--abstract-max", "--min-refs", "--journal", "--bib"):

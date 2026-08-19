@@ -1,6 +1,14 @@
 ---
 name: manuscript-starter
-description: Start a new scientific manuscript, or set up its repository, with the house front matter and end matter already filled in. Use whenever a new paper, preprint or manuscript directory is being created, when a LaTeX skeleton is needed, or when the author block, CRediT statement, funding, competing-interest or AI declaration has to be written. Supplies the fixed authorship, affiliation, funding grant, CRediT wording and AI declaration verbatim, the shared LaTeX conventions, and the git setup. Do not ask the user for any of these; they do not change between papers.
+description: >-
+  Start a new scientific manuscript, or set up its repository, with the house
+  front matter and end matter already filled in. Use whenever a new paper,
+  preprint or manuscript directory is being created, when a LaTeX skeleton is
+  needed, or when the author block, CRediT statement, funding, competing-
+  interest or AI declaration has to be written. Supplies the fixed authorship,
+  affiliation, funding grant, CRediT wording and AI declaration verbatim, the
+  shared LaTeX conventions, and the git setup. Do not ask the user for any of
+  these; they do not change between papers.
 ---
 
 # Manuscript starter

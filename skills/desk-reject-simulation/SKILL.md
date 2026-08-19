@@ -1,6 +1,14 @@
 ---
 name: desk-reject-simulation
-description: Simulate the editor's first screen before a manuscript is submitted, and decide whether it would be desk rejected. Use when a paper is being prepared for submission, when choosing or changing the target journal, when a cover letter is being written, or when the user asks whether a draft is ready to send. Runs the mechanical submission checks that can be automated and then the judgement half of the screen: scope fit, whether the claim is new, whether it is supported, and whether the framing is honest. Returns DESK REJECT, BORDERLINE or SEND OUT with named reasons.
+description: >-
+  Simulate the editor's first screen before a manuscript is submitted, and
+  decide whether it would be desk rejected. Use when a paper is being prepared
+  for submission, when choosing or changing the target journal, when a cover
+  letter is being written, or when the user asks whether a draft is ready to
+  send. Runs the mechanical submission checks that can be automated and then
+  the judgement half of the screen: scope fit, whether the claim is new,
+  whether it is supported, and whether the framing is honest. Returns DESK
+  REJECT, BORDERLINE or SEND OUT with named reasons.
 ---
 
 # Desk reject simulation

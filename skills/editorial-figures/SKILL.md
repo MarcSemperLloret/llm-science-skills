@@ -1,6 +1,14 @@
 ---
 name: editorial-figures
-description: Build a chart that carries its own conclusion, for a report, README, slide deck, poster, blog post or social image — anywhere the figure travels without a caption underneath it. Uses an editorial style with a headline, a standfirst, direct annotation of the finding and a source line, in the manner of the Financial Times or The Economist but with our own palette and type. Do NOT use for journal or manuscript figures, where the caption carries the title and an in-figure headline is wrong; use scientific-figures for those.
+description: >-
+  Build a chart that carries its own conclusion, for a report, README, slide
+  deck, poster, blog post or social image — anywhere the figure travels
+  without a caption underneath it. Uses an editorial style with a headline, a
+  standfirst, direct annotation of the finding and a source line, in the
+  manner of the Financial Times or The Economist but with our own palette and
+  type. Do NOT use for journal or manuscript figures, where the caption
+  carries the title and an in-figure headline is wrong; use scientific-figures
+  for those.
 ---
 
 # Editorial figures

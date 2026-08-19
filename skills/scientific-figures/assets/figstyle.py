@@ -166,3 +166,9 @@ __all__ = [
     "use", "figure", "label_panels", "shared_legend", "save", "context",
     "mpl", "plt",
 ]
+
+
+if __name__ == "__main__":
+    # A library, not a command. Running it should still say what it offers,
+    # because that is what an agent tries first.
+    print(__doc__)

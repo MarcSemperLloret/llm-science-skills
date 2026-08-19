@@ -377,9 +377,9 @@ def show(records, venue=None):
 
 
 def main(argv):
-    if not argv:
+    if not argv or {"-h", "--help"} & set(argv):
         print(__doc__)
-        return 2
+        return 0 if argv else 2
     rows, mailto, source, venue = 10, None, None, None
     for flag in ("--rows", "--mailto", "--source", "--venue"):
         if flag in argv:

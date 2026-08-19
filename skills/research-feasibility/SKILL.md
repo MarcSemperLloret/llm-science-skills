@@ -1,6 +1,14 @@
 ---
 name: research-feasibility
-description: Evaluate whether a scientific research idea has sufficient empirical signal, robustness, novelty, and relevance to justify a full project. Test the original hypothesis efficiently, actively identify unexpected scientifically meaningful signals, verify every promising signal against the current literature, challenge alternative explanations, and recommend whether to pursue, redirect, branch, or stop the research project. Applicable across empirical, computational, data-intensive, and quantitative scientific fields.
+description: >-
+  Evaluate whether a scientific research idea has sufficient empirical signal,
+  robustness, novelty, and relevance to justify a full project. Test the
+  original hypothesis efficiently, actively identify unexpected scientifically
+  meaningful signals, verify every promising signal against the current
+  literature, challenge alternative explanations, and recommend whether to
+  pursue, redirect, branch, or stop the research project. Applicable across
+  empirical, computational, data-intensive, and quantitative scientific
+  fields.
 ---
 
 # Research Feasibility & Signal Discovery

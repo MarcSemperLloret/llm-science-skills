@@ -1128,9 +1128,9 @@ def report(findings, header=None):
 
 
 def main(argv):
-    if not argv:
+    if not argv or {"-h", "--help"} & set(argv):
         print(__doc__)
-        return 2
+        return 0 if argv else 2
     target = None
     if argv[0] == "--width":
         target = float(argv[1])
