@@ -157,6 +157,21 @@ check("a mention of significance is not a claim",
       not any(f[1] == "no-effect-size"
               for f in statcheck.check_pvalues(statcheck._strip(GOOD))))
 
+print("\nthe prose checker sees the pattern it exists for")
+prosecheck = load("scientific-writing/scripts/prosecheck.py")
+VICE = ("\n\n\\textbf{Station-level results.}\nThe results indicate that all is well."
+        "\n\n\\textbf{Regional analysis.}\nFurthermore the region behaves the same."
+        "\n\n\\textbf{Temporal results.}\nAdditionally the season is reproduced."
+        "\n\n\\textbf{Sensitivity.}\nFinally nothing alters the direction.")
+check("four bold lead-ins is a FAIL",
+      any(f[0] == "FAIL" for f in prosecheck.check_leadins(VICE)))
+check("a table is not a paragraph",
+      "tabular" not in prosecheck._body(
+          "\\section{R}\ntext\n\n\\begin{table}\n\\begin{tabular}{ll}a&b"
+          "\\end{tabular}\n\\end{table}\n"))
+check("small is an ordinary table size", not prosecheck.SHRINK.search("\\small"))
+check("scriptsize is not", bool(prosecheck.SHRINK.search("\\scriptsize")))
+
 print("\ndata smells fire on the failures they were written for")
 datasmell = load("silent-failure-audit/scripts/datasmell.py")
 import csv as _csv, random as _random
